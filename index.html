@@ -19,15 +19,31 @@
     --warn:#a56a1f;
     --warn-bg:#f0e6d2;
 
-    --dot:#33619c;
-    --bam:#3c8a41;
-    --crak:#b03a3a;
-    --wind:#586069;
-    --drag-r:#b03a3a;
-    --drag-g:#3c8a41;
-    --soap:#4f6285;
+    /* pattern-preview suit colours (theme-aware) */
+    --dot:#c2601a;          /* orange */
+    --bam:#2f8ec9;          /* light blue */
+    --crak:#1c357c;         /* dark blue */
+    --wind:#24272e;         /* black */
+    --drag-r:var(--crak);   /* dragons match their suit */
+    --drag-g:var(--bam);
+    --soap:var(--dot);
     --flower:#b25c95;
     --joker:#a9781f;
+
+    /* engraving colours for the always-ivory tile faces (fixed, not theme-aware) */
+    --t-dot:#c8641a;
+    --t-bam:#2f92cf;
+    --t-crak:#1c357c;
+    --t-wind:#24272e;
+    --t-dragr:var(--t-crak);
+    --t-dragg:var(--t-bam);
+    --t-soap:var(--t-dot);
+    --t-flower:#b25c95;
+    --t-joker:#a9781f;
+
+    /* x / y / z ink in the pattern preview (card convention: x green, z red, y black) */
+    --pp-green:#3c8a41;
+    --pp-red:#b0332f;
 
     --tile-face:#efece0;
     --tile-edge:#c9c5b2;
@@ -56,15 +72,17 @@
       --warn:#d69f52;
       --warn-bg:#2a2213;
 
-      --dot:#79a6dc;
-      --bam:#74c377;
-      --crak:#e08a8a;
-      --wind:#9ba5ae;
-      --drag-r:#e08a8a;
-      --drag-g:#74c377;
-      --soap:#9db1d4;
+      --dot:#e0904a;         /* orange, lifted for dark bg */
+      --bam:#68b8e6;         /* light blue */
+      --crak:#8ba1ec;        /* dark blue → periwinkle so it reads on dark */
+      --wind:#c4c9d3;        /* black → light grey on dark */
+      --drag-r:var(--crak);
+      --drag-g:var(--bam);
+      --soap:var(--dot);
       --flower:#e694c6;
       --joker:#e2b563;
+      --pp-green:#74c377;
+      --pp-red:#e08a8a;
 
       --tile-face:#ece9db;
       --tile-edge:#b9b5a2;
@@ -86,15 +104,17 @@
     --good-bg:#16261f;
     --warn:#d69f52;
     --warn-bg:#2a2213;
-    --dot:#79a6dc;
-    --bam:#74c377;
-    --crak:#e08a8a;
-    --wind:#9ba5ae;
-    --drag-r:#e08a8a;
-    --drag-g:#74c377;
-    --soap:#9db1d4;
+    --dot:#e0904a;
+    --bam:#68b8e6;
+    --crak:#8ba1ec;
+    --wind:#c4c9d3;
+    --drag-r:var(--crak);
+    --drag-g:var(--bam);
+    --soap:var(--dot);
     --flower:#e694c6;
     --joker:#e2b563;
+    --pp-green:#74c377;
+    --pp-red:#e08a8a;
     --tile-face:#ece9db;
     --tile-edge:#b9b5a2;
     --tile-ink:#23261f;
@@ -213,9 +233,9 @@
   .tile.xs{width:32px;min-width:32px;padding:3px 0 2px;border-bottom-width:2px}
   .tile.xs .t-num{font-size:13px}
   .tile.xs .t-suit{font-size:0;height:0}
-  .tile.k-dot{--sc:var(--dot)} .tile.k-bam{--sc:var(--bam)} .tile.k-crak{--sc:var(--crak)}
-  .tile.k-wind{--sc:var(--wind)} .tile.k-drag-r{--sc:var(--drag-r)} .tile.k-drag-g{--sc:var(--drag-g)}
-  .tile.k-soap{--sc:var(--soap)} .tile.k-flower{--sc:var(--flower)} .tile.k-joker{--sc:var(--joker)}
+  .tile.k-dot{--sc:var(--t-dot)} .tile.k-bam{--sc:var(--t-bam)} .tile.k-crak{--sc:var(--t-crak)}
+  .tile.k-wind{--sc:var(--t-wind)} .tile.k-drag-r{--sc:var(--t-dragr)} .tile.k-drag-g{--sc:var(--t-dragg)}
+  .tile.k-soap{--sc:var(--t-soap)} .tile.k-flower{--sc:var(--t-flower)} .tile.k-joker{--sc:var(--t-joker)}
   .tile[disabled]{opacity:.32;cursor:not-allowed}
   .tile.static{cursor:default}
   .tile.static:active{transform:none}
@@ -276,11 +296,27 @@
   .chip.away0{background:var(--good-bg);color:var(--good)}
   .chip.jok{background:var(--warn-bg);color:var(--warn)}
   .chip.lock{background:transparent;border:1px solid var(--line-strong)}
+  .chip.pick{background:var(--accent);color:var(--accent-ink)}
+
+  .line-card{cursor:pointer;transition:transform .06s ease, box-shadow .12s ease}
+  .line-card:active{transform:scale(.992)}
+  .line-card:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  .hand.picked{
+    border-color:var(--accent);
+    box-shadow:0 0 0 2px var(--accent);
+    background:color-mix(in srgb, var(--accent) 9%, var(--surface));
+  }
+  .toppick.picked{
+    box-shadow:0 0 0 2px var(--accent), var(--shadow);
+    background:color-mix(in srgb, var(--accent) 11%, var(--surface));
+  }
+  .toppick.picked .eyebrow{color:var(--accent)}
   .tiles-line{display:flex;flex-wrap:wrap;gap:5px;align-items:center;margin-top:8px}
   .tiles-line .lab{
     font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;
-    color:var(--ink-soft);margin-right:2px;
+    color:var(--ink-soft);margin-right:2px;min-width:34px;
   }
+  .tiles-line .lab.have{color:var(--good)}
   .assign{font-family:var(--font-mono);font-size:11px;color:var(--ink-soft);margin-top:7px}
   .pattern-code{
     font-family:var(--font-mono);font-size:11.5px;color:var(--ink-soft);
@@ -299,6 +335,29 @@
     background:var(--surface);margin-top:10px;
   }
   .editrow .l1{display:flex;gap:8px;align-items:center}
+  .fld-lbl{display:block;font-size:10px;letter-spacing:.05em;text-transform:uppercase;
+    color:var(--ink-soft);font-weight:600;margin:8px 0 3px}
+  .editrow > .fld-lbl:first-child{margin-top:0}
+  .pat-preview{
+    font-family:var(--font-mono);font-size:12px;line-height:1.7;
+    margin-top:5px;padding:6px 9px;border:1px solid var(--line);border-radius:7px;
+    background:var(--bg);overflow-x:auto;white-space:nowrap;
+  }
+  .pp-x{color:var(--pp-green);font-weight:600}
+  .pp-y{color:var(--ink);font-weight:700}
+  .pp-z{color:var(--pp-red);font-weight:600}
+  .pp-flower{color:var(--ink);font-weight:700}
+  .pp-dot{color:var(--dot);font-weight:600}
+  .pp-bam{color:var(--bam);font-weight:600}
+  .pp-crak{color:var(--crak);font-weight:600}
+  .pp-dr{color:var(--drag-r);font-weight:600}
+  .pp-dg{color:var(--drag-g);font-weight:600}
+  .pp-ds{color:var(--soap);font-weight:600}
+  .pp-wind{color:var(--wind);font-weight:600}
+  .pp-joker{color:var(--joker);font-weight:600}
+  .pp-any{color:var(--ink-soft);font-style:italic}
+  .pp-flag{color:var(--accent);font-weight:600}
+  .pp-dim,.pp-sep{color:var(--ink-soft);font-weight:400}
   .editrow input[type=text]{
     flex:1;min-width:0;font:inherit;font-size:13px;
     border:1px solid var(--line-strong);border-radius:8px;padding:8px 9px;
@@ -459,11 +518,13 @@ const LS = {
   rack:'mahjong2026.rack.v1',
   view:'mahjong2026.view.v1',
   theme:'mahjong2026.theme.v1',
+  pick:'mahjong2026.pick.v1',
 };
 let card = load(LS.card, null) || DEFAULT_CARD.map(h=>({...h, id:uid()}));
 card.forEach(h=>{ if(!h.id) h.id = uid(); });
 let rack = load(LS.rack, null) || ['wn','wn','ws','ws','rd','rd','gd','gd','gd','we','we','jk','jk'];
 let view = load(LS.view, null) || 'rack';
+let pickedLine = load(LS.pick, null);
 let photoURL = null;
 let photoBig = false;
 
@@ -496,6 +557,37 @@ function cardFromArray(arr){
     points: +h.points||25, parity: h.parity||'any',
     nojoker: !!h.nojoker, concealed: !!h.concealed,
   }));
+}
+
+/* colour a pattern string to match our suit convention:
+   x = green, z = red, y = black, flowers = black */
+function tokColor(t){
+  if(/^x/i.test(t)) return 'pp-x';         // green suit
+  if(/^y/i.test(t)) return 'pp-y';         // black suit
+  if(/^z/i.test(t)) return 'pp-z';         // red suit
+  if(/^F+$/i.test(t)) return 'pp-flower';  // flowers → black
+  if(t==='DR') return 'pp-dr';
+  if(t==='DG') return 'pp-dg';
+  if(t==='DS' || t==='D0') return 'pp-ds';
+  if(/^D[1-9]$/.test(t)) return 'pp-dot';
+  if(/^B[1-9]$/.test(t)) return 'pp-bam';
+  if(/^C[1-9]$/.test(t)) return 'pp-crak';
+  if(/^W[NESW]$/.test(t)) return 'pp-wind';
+  if(t==='D?' || t==='W?') return 'pp-any';
+  if(/^J+$/i.test(t)) return 'pp-joker';
+  return 'pp-dim';
+}
+function colorizePattern(src){
+  src = (src||'').trim();
+  if(!src) return '<span class="pp-dim">(no pattern yet)</span>';
+  let body = src, flag = '';
+  const fm = src.match(/^([a-z0-9 ]+):\s*(.*)$/i);
+  if(fm && /\b(odd|even|nojoker|369)\b/i.test(fm[1])){ flag = fm[1].trim(); body = fm[2]; }
+  const blocks = body.split(',').map(b=>
+    b.trim().split(/\s+/).filter(Boolean)
+      .map(t=> `<span class="${tokColor(t)}">${esc(t)}</span>`).join(' ')
+  ).filter(Boolean).join('<span class="pp-sep">, </span>');
+  return (flag ? `<span class="pp-flag">${esc(flag)}:</span> ` : '') + blocks;
 }
 
 let toastT;
@@ -688,7 +780,15 @@ function scoreExpansion(blocks, rackCounts, jokers, allowJoker){
   });
   need.sort((a,b)=> (ORDER[a]??99)-(ORDER[b]??99));
 
-  return { away, realMatched, jokersUsed, have:sortRack(have), need };
+  // order the "have" tiles to follow the hand's own group order (FFF first, then …)
+  const haveLeft = tally(have);
+  const haveOrdered = [];
+  for(const b of blocks) for(const code of b){
+    if(haveLeft[code] > 0){ haveLeft[code]--; haveOrdered.push(code); }
+  }
+  Object.keys(haveLeft).forEach(code=>{ while(haveLeft[code]-- > 0) haveOrdered.push(code); });
+
+  return { away, realMatched, jokersUsed, have:haveOrdered, need };
 }
 
 function evaluateHand(h, rackCounts, jokers){
@@ -733,15 +833,16 @@ function evaluateHand(h, rackCounts, jokers){
       }
     }
   }
-  // readable assignment note
+  // readable assignment note — plain words, no variable letters
   const parts = [];
-  const suitName = {d:'Dot', b:'Bam', c:'Crak'};
+  const suitName = {d:'Dots', b:'Bams', c:'Craks'};
   const dragName = {rd:'Red', gd:'Green', sd:'Soap'};
-  parsed.vars.forEach(v=> parts.push(`${v} → ${suitName[best.sm[v]]}`));
-  if(best.nv!=null) parts.push(`n = ${best.nv}`);
-  if(best.mv!=null) parts.push(`m = ${best.mv}`);
-  if(best.dv!=null) parts.push(`dragon = ${dragName[best.dv]}`);
-  if(best.wv!=null) parts.push(`wind = ${({wn:'North',we:'East',ww:'West',ws:'South'})[best.wv]}`);
+  const suitsUsed = parsed.vars.map(v=> suitName[best.sm[v]]);
+  if(suitsUsed.length) parts.push(suitsUsed.join(' + '));
+  if(best.nv!=null) parts.push(`number ${best.nv}`);
+  if(best.mv!=null) parts.push(`+ number ${best.mv}`);
+  if(best.dv!=null) parts.push(`${dragName[best.dv]} dragon`);
+  if(best.wv!=null) parts.push(`${({wn:'North',we:'East',ww:'West',ws:'South'})[best.wv]} wind`);
 
   return {
     ok:true, parsed,
@@ -786,8 +887,12 @@ function render(){
   document.getElementById('pipRack').textContent = String(rack.length);
   document.getElementById('pipCard').textContent = String(card.length);
   const ranked = view==='lines' ? rankLines() : null;
-  document.getElementById('pipLines').textContent =
-    ranked && ranked.length ? String(ranked[0].ev.away) : '–';
+  let pipL = '–';
+  if(ranked && ranked.length){
+    const pr = pickedLine ? ranked.find(r=> r.h.id === pickedLine) : null;
+    pipL = String((pr || ranked[0]).ev.away);
+  }
+  document.getElementById('pipLines').textContent = pipL;
 
   if(view==='rack') views.innerHTML = viewRack();
   else if(view==='lines') views.innerHTML = viewLines(ranked);
@@ -850,59 +955,60 @@ function viewRack(){
 }
 
 /* ---- LINES VIEW ---- */
-function viewLines(ranked){
-  if(!card.length) return `<div class="empty-note">No hands on your card yet.<br>Go to <b>Card</b> and add the hands from your 2026 card.</div>`;
-  if(rack.length===0) return `<div class="empty-note">Your rack is empty.<br>Go to <b>Rack</b> and enter your tiles first.</div>`;
-  if(!ranked.length) return `<div class="empty-note">Every hand on your card has a syntax error.<br>Check the <b>Card</b> tab.</div>`;
-
-  const top = ranked[0];
-  const rest = ranked.slice(1, 8);
-
-  const nextTiles = top.ev.need.slice(0,4).map(c=> tileHTML(c,'sm')).join('')
-    || '<span class="fine">Complete — you have every tile.</span>';
-
-  const topHTML = `
-    <div class="toppick">
-      <div class="eyebrow">Go for this line</div>
+function haveLine(r, size){
+  const have = (r.ev.have || []).map(c=> tileHTML(c, size)).join('');
+  const jk = r.ev.jokersUsed ? `<span class="fine" style="margin-left:4px">+ ${r.ev.jokersUsed} joker${r.ev.jokersUsed===1?'':'s'}</span>` : '';
+  return `<div class="tiles-line"><span class="lab have">Have</span>${have || '<span class="fine">none yet</span>'}${jk}</div>`;
+}
+function lineCardBig(r, picked){
+  return `
+    <div class="toppick line-card ${picked?'picked':''}" data-act="pick-line" data-id="${r.h.id}" role="button" tabindex="0">
+      <div class="eyebrow">${picked ? '✓ Your line — tap to unpick' : 'Go for this line'}</div>
       <div class="hand-head" style="margin-top:4px">
-        <span class="cat-dot" style="background:${CAT_COLOR[top.h.cat]||'#888'}"></span>
-        <span class="cat-name">${esc(top.h.cat)}</span>
-        ${top.ev.concealed?'<span class="chip lock">concealed</span>':''}
-        ${top.ev.nojoker?'<span class="chip lock">no jokers</span>':''}
+        <span class="cat-dot" style="background:${CAT_COLOR[r.h.cat]||'#888'}"></span>
+        <span class="cat-name">${esc(r.h.cat)}</span>
+        ${r.ev.concealed?'<span class="chip lock">concealed</span>':''}
+        ${r.ev.nojoker?'<span class="chip lock">no jokers</span>':''}
       </div>
-      <div class="pname">${esc(top.h.label||'(unnamed hand)')}</div>
+      <div class="pname">${esc(r.h.label||'(unnamed hand)')}</div>
       <div class="away-line">
-        <span class="away-n">${top.ev.away}</span>
-        <span class="away-lbl">tile${top.ev.away===1?'':'s'} away${top.ev.jokersUsed?` · using ${top.ev.jokersUsed} joker${top.ev.jokersUsed===1?'':'s'}`:''} · ${top.h.points||0} pts</span>
+        <span class="away-n">${r.ev.away}</span>
+        <span class="away-lbl">tile${r.ev.away===1?'':'s'} away${r.ev.jokersUsed?` · using ${r.ev.jokersUsed} joker${r.ev.jokersUsed===1?'':'s'}`:''} · ${r.h.points||0} pts</span>
       </div>
-      ${top.ev.assign?`<div class="assign">${esc(top.ev.assign)}</div>`:''}
-      <div class="tiles-line"><span class="lab">Need next</span>${nextTiles}</div>
+      ${haveLine(r,'sm')}
     </div>`;
-
-  const restHTML = rest.map(r=>{
-    const need = r.ev.need.slice(0,6).map(c=> tileHTML(c,'xs')).join('') || '<span class="fine">complete</span>';
-    return `
-    <div class="hand">
+}
+function lineCardRow(r, picked){
+  return `
+    <div class="hand line-card ${picked?'picked':''}" data-act="pick-line" data-id="${r.h.id}" role="button" tabindex="0">
       <div class="hand-head">
         <span class="cat-dot" style="background:${CAT_COLOR[r.h.cat]||'#888'}"></span>
         <span class="cat-name">${esc(r.h.cat)}</span>
         <span class="hand-meta">
+          ${picked?'<span class="chip pick">✓ picked</span>':''}
           <span class="chip ${r.ev.away===0?'away0':''}">${r.ev.away} away</span>
           ${r.ev.jokersUsed?`<span class="chip jok">${r.ev.jokersUsed}J</span>`:''}
           <span class="chip">${r.h.points||0}p</span>
         </span>
       </div>
       <div class="hand-name">${esc(r.h.label||'(unnamed hand)')}</div>
-      ${r.ev.assign?`<div class="assign">${esc(r.ev.assign)}</div>`:''}
-      <div class="tiles-line"><span class="lab">Need</span>${need}</div>
+      ${haveLine(r,'xs')}
     </div>`;
-  }).join('');
+}
+function viewLines(ranked){
+  if(!card.length) return `<div class="empty-note">No hands on your card yet.<br>Go to <b>Card</b> and add the hands from your 2026 card.</div>`;
+  if(rack.length===0) return `<div class="empty-note">Your rack is empty.<br>Go to <b>Rack</b> and enter your tiles first.</div>`;
+  if(!ranked.length) return `<div class="empty-note">Every hand on your card has a syntax error.<br>Check the <b>Card</b> tab.</div>`;
+
+  const pickRow = pickedLine ? ranked.find(r=> r.h.id === pickedLine) : null;
+  const head = pickRow || ranked[0];
+  const rest = ranked.filter(r=> r.h.id !== head.h.id).slice(0, 7);
 
   return `
-    <h2 class="section">Best lines for your rack</h2>
-    ${topHTML}
-    ${restHTML}
-    <p class="fine" style="margin-top:14px">Ranking counts jokers only in pungs, kongs and quints (never pairs or singles), and skips jokers entirely on hands you marked <b>no jokers</b>. “Need next” shows concrete tiles once suits are locked in.</p>
+    <h2 class="section">${pickRow ? 'Your line' : 'Best lines for your rack'}</h2>
+    ${lineCardBig(head, !!pickRow)}
+    ${rest.map(r=> lineCardRow(r, r.h.id===pickedLine)).join('')}
+    <p class="fine" style="margin-top:14px">Tap any line to mark it as the one you're going for — it pins to the top and the app keeps tracking it as your rack changes. Tap it again to unpick.</p>
   `;
 }
 
@@ -929,7 +1035,9 @@ function viewCard(){
     &mdash; they're saved on this device.
   </div>
 
-  <p class="fine">Tap <b>+ hand</b> on any category to add a blank row there, then fill in the name and pattern.</p>
+  <p class="fine">Tap <b>+ hand</b> on any category to add a blank row there, then fill in the name and pattern.
+  The coloured line under each pattern follows your card's ink:
+  <span class="pp-x">x = green</span>, <span class="pp-z">z = red</span>, <span class="pp-y">y = black</span>.</p>
   <div class="actbar">
     <button class="btn tiny ghost" type="button" data-act="restore">Restore examples</button>
     <button class="btn tiny ghost" type="button" data-act="clear-card">Clear all</button>
@@ -988,10 +1096,13 @@ function editRow(h){
   const catOpts = CATS.map(c=> `<option value="${esc(c)}"${c===h.cat?' selected':''}>${esc(c)}</option>`).join('');
   return `
   <div class="editrow" data-row="${h.id}">
+    <label class="fld-lbl" for="lbl-${h.id}">Name — shown on the Lines screen</label>
     <div class="l1">
-      <input type="text" data-field="label" data-id="${h.id}" value="${esc(h.label||'')}" placeholder="Hand name, e.g. FF 2026 2026 2026" aria-label="Hand name">
+      <input type="text" id="lbl-${h.id}" data-field="label" data-id="${h.id}" value="${esc(h.label||'')}" placeholder="e.g. 13579 run, 1 suit" aria-label="Hand name">
     </div>
-    <input type="text" class="mono" data-field="pattern" data-id="${h.id}" value="${esc(h.pattern||'')}" placeholder="FF, x:2026, y:2026, z:2026" aria-label="Pattern">
+    <label class="fld-lbl" for="pat-${h.id}">Pattern — the tiles (xn, x:2026, DR …)</label>
+    <input type="text" id="pat-${h.id}" class="mono" data-field="pattern" data-id="${h.id}" value="${esc(h.pattern||'')}" placeholder="FF, x:2026, y:2026, z:2026" aria-label="Pattern">
+    <div class="pat-preview" data-preview="${h.id}">${colorizePattern(h.pattern)}</div>
     <div class="ctrls">
       <select data-field="cat" data-id="${h.id}" aria-label="Category">${catOpts}</select>
       <select data-field="parity" data-id="${h.id}" aria-label="Parity">
@@ -1032,6 +1143,13 @@ document.addEventListener('click', async e=>{
   if(act==='rack-clear'){
     if(!rack.length){ toast('Rack is already empty'); return; }
     if(await askConfirm('Clear all tiles from your rack?', 'Clear rack')){ rack=[]; saveAll(); render(); }
+    return;
+  }
+  if(act==='pick-line'){
+    const id = t.dataset.id;
+    pickedLine = (pickedLine === id) ? null : id;
+    save(LS.pick, pickedLine);
+    render();
     return;
   }
   if(act==='photo-toggle'){ photoBig = !photoBig; render(); return; }
@@ -1121,6 +1239,10 @@ document.addEventListener('input', e=>{
     unparse(h);
     save(LS.card, card);
     if(field==='pattern' || field==='parity') refreshStatus(h);
+    if(field==='pattern'){
+      const pv = document.querySelector(`[data-preview="${h.id}"]`);
+      if(pv) pv.innerHTML = colorizePattern(f.value);
+    }
     document.getElementById('pipCard').textContent = String(card.length);
     return;
   }
@@ -1158,6 +1280,18 @@ function hookPhoto(id){
   });
 }
 hookPhoto('camIn'); hookPhoto('fileIn');
+
+/* keyboard: Enter / Space activates a focused line card */
+document.addEventListener('keydown', e=>{
+  if(e.key!=='Enter' && e.key!==' ') return;
+  const el = e.target.closest && e.target.closest('.line-card[data-act="pick-line"]');
+  if(!el) return;
+  e.preventDefault();
+  const id = el.dataset.id;
+  pickedLine = (pickedLine === id) ? null : id;
+  save(LS.pick, pickedLine);
+  render();
+});
 
 /* theme toggle: cycle system -> light -> dark */
 const themeBtn = document.getElementById('themeBtn');
