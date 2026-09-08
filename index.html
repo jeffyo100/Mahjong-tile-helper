@@ -1,0 +1,1198 @@
+<title>Line Caller</title>
+<meta name="description" content="Photo-assisted American Mah Jongg helper: enter your rack, get the best 2026 lines to go for.">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+  :root{
+    color-scheme: light dark;
+    --bg:#e7e6dd;
+    --surface:#f3f2ea;
+    --surface-2:#dcdacd;
+    --ink:#23261f;
+    --ink-soft:#5c5f52;
+    --line:#c7c5b5;
+    --line-strong:#a9a793;
+    --accent:#803d5b;
+    --accent-ink:#fff8fb;
+    --good:#0f6f5e;
+    --good-bg:#dcece6;
+    --warn:#a56a1f;
+    --warn-bg:#f0e6d2;
+
+    --dot:#33619c;
+    --bam:#3c8a41;
+    --crak:#b03a3a;
+    --wind:#586069;
+    --drag-r:#b03a3a;
+    --drag-g:#3c8a41;
+    --soap:#4f6285;
+    --flower:#b25c95;
+    --joker:#a9781f;
+
+    --tile-face:#efece0;
+    --tile-edge:#c9c5b2;
+    --tile-ink:#23261f;
+
+    --radius:14px;
+    --radius-sm:9px;
+    --shadow:0 1px 2px rgba(30,28,20,.14), 0 8px 24px -14px rgba(30,28,20,.3);
+    --font-display:"Fraunces", Georgia, "Times New Roman", serif;
+    --font-body:"IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --font-mono:"IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#16180f;
+      --surface:#1f221a;
+      --surface-2:#2b2f25;
+      --ink:#e9e8dc;
+      --ink-soft:#a3a595;
+      --line:#343829;
+      --line-strong:#4a4f3c;
+      --accent:#cf7ba0;
+      --accent-ink:#1a0f16;
+      --good:#43c1a6;
+      --good-bg:#16261f;
+      --warn:#d69f52;
+      --warn-bg:#2a2213;
+
+      --dot:#79a6dc;
+      --bam:#74c377;
+      --crak:#e08a8a;
+      --wind:#9ba5ae;
+      --drag-r:#e08a8a;
+      --drag-g:#74c377;
+      --soap:#9db1d4;
+      --flower:#e694c6;
+      --joker:#e2b563;
+
+      --tile-face:#ece9db;
+      --tile-edge:#b9b5a2;
+      --tile-ink:#23261f;
+      --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 26px -14px rgba(0,0,0,.7);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#16180f;
+    --surface:#1f221a;
+    --surface-2:#2b2f25;
+    --ink:#e9e8dc;
+    --ink-soft:#a3a595;
+    --line:#343829;
+    --line-strong:#4a4f3c;
+    --accent:#cf7ba0;
+    --accent-ink:#1a0f16;
+    --good:#43c1a6;
+    --good-bg:#16261f;
+    --warn:#d69f52;
+    --warn-bg:#2a2213;
+    --dot:#79a6dc;
+    --bam:#74c377;
+    --crak:#e08a8a;
+    --wind:#9ba5ae;
+    --drag-r:#e08a8a;
+    --drag-g:#74c377;
+    --soap:#9db1d4;
+    --flower:#e694c6;
+    --joker:#e2b563;
+    --tile-face:#ece9db;
+    --tile-edge:#b9b5a2;
+    --tile-ink:#23261f;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 26px -14px rgba(0,0,0,.7);
+  }
+
+  *{box-sizing:border-box}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--font-body);
+    line-height:1.5;
+    -webkit-text-size-adjust:100%;
+  }
+  .wrap{max-width:560px;margin:0 auto;padding:0 14px 96px}
+
+  header.top{
+    position:sticky;top:0;z-index:20;
+    background:color-mix(in srgb, var(--bg) 88%, transparent);
+    backdrop-filter:blur(8px);
+    margin:0 -14px;padding:12px 14px 8px;
+    border-bottom:1px solid var(--line);
+  }
+  .brandrow{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+  .wordmark{
+    font-family:var(--font-display);
+    font-weight:600;font-size:20px;letter-spacing:.01em;
+    display:flex;align-items:baseline;gap:8px;
+  }
+  .wordmark .tag-badge{
+    font-family:var(--font-mono);font-size:10px;font-weight:600;
+    letter-spacing:.14em;text-transform:uppercase;
+    color:var(--accent-ink);background:var(--accent);
+    padding:2px 6px;border-radius:5px;transform:translateY(-2px);
+  }
+  .themebtn{
+    border:1px solid var(--line-strong);background:var(--surface);
+    color:var(--ink-soft);border-radius:8px;padding:5px 9px;
+    font:inherit;font-size:12px;cursor:pointer;
+  }
+  .themebtn:hover{color:var(--ink)}
+
+  .seg{
+    display:grid;grid-template-columns:repeat(3,1fr);gap:4px;
+    margin-top:10px;background:var(--surface-2);border-radius:11px;padding:4px;
+  }
+  .seg button{
+    font:inherit;font-weight:600;font-size:13px;
+    border:0;border-radius:8px;padding:8px 6px;cursor:pointer;
+    background:transparent;color:var(--ink-soft);
+    display:flex;align-items:center;justify-content:center;gap:6px;
+  }
+  .seg button[aria-current="true"]{
+    background:var(--surface);color:var(--ink);box-shadow:var(--shadow);
+  }
+  .seg .pip{font-family:var(--font-mono);font-size:11px;color:var(--accent);font-weight:600}
+
+  h2.section{
+    font-family:var(--font-display);font-weight:600;font-size:17px;
+    margin:22px 0 10px;text-wrap:balance;
+  }
+  .muted{color:var(--ink-soft)}
+  .fine{font-size:12.5px;color:var(--ink-soft);line-height:1.45}
+
+  .panel{
+    background:var(--surface);border:1px solid var(--line);
+    border-radius:var(--radius);padding:14px;
+  }
+  .panel + .panel{margin-top:12px}
+
+  /* ---- photo ---- */
+  .photo-drop{
+    display:flex;gap:10px;align-items:center;flex-wrap:wrap;
+  }
+  .btn{
+    font:inherit;font-weight:600;font-size:13px;cursor:pointer;
+    border:1px solid var(--line-strong);background:var(--surface-2);
+    color:var(--ink);border-radius:9px;padding:9px 13px;
+    display:inline-flex;align-items:center;gap:7px;
+  }
+  .btn:hover{border-color:var(--accent)}
+  .btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+  .btn.ghost{background:transparent}
+  .btn.tiny{padding:6px 9px;font-size:12px}
+  .btn:focus-visible,.seg button:focus-visible,.tile:focus-visible,.themebtn:focus-visible{
+    outline:2px solid var(--accent);outline-offset:2px;
+  }
+  input[type=file]{display:none}
+  .thumb{margin-top:12px;position:relative}
+  .thumb img{
+    display:block;width:100%;border-radius:10px;border:1px solid var(--line-strong);
+    max-height:150px;object-fit:cover;cursor:zoom-in;
+  }
+  .thumb.big img{max-height:64vh;object-fit:contain;cursor:zoom-out;background:var(--surface-2)}
+  .thumb .rm{position:absolute;top:8px;right:8px}
+
+  /* ---- tiles ---- */
+  .tile{
+    --sc:var(--ink-soft);
+    font-family:var(--font-mono);cursor:pointer;
+    background:var(--tile-face);color:var(--tile-ink);
+    border:1px solid var(--tile-edge);
+    border-bottom-width:3px;
+    border-radius:8px;
+    padding:5px 0 3px;width:44px;min-width:44px;
+    display:flex;flex-direction:column;align-items:center;gap:1px;
+    box-shadow:0 1px 0 rgba(0,0,0,.06);
+    transition:transform .08s ease;
+  }
+  .tile:active{transform:translateY(1px)}
+  .tile .t-num{font-size:19px;font-weight:600;line-height:1;color:var(--sc)}
+  .tile .t-suit{font-size:8.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft)}
+  .tile.sm{width:38px;min-width:38px;padding:4px 0 2px;border-bottom-width:2px}
+  .tile.sm .t-num{font-size:16px}
+  .tile.sm .t-suit{font-size:7.5px}
+  .tile.xs{width:32px;min-width:32px;padding:3px 0 2px;border-bottom-width:2px}
+  .tile.xs .t-num{font-size:13px}
+  .tile.xs .t-suit{font-size:0;height:0}
+  .tile.k-dot{--sc:var(--dot)} .tile.k-bam{--sc:var(--bam)} .tile.k-crak{--sc:var(--crak)}
+  .tile.k-wind{--sc:var(--wind)} .tile.k-drag-r{--sc:var(--drag-r)} .tile.k-drag-g{--sc:var(--drag-g)}
+  .tile.k-soap{--sc:var(--soap)} .tile.k-flower{--sc:var(--flower)} .tile.k-joker{--sc:var(--joker)}
+  .tile[disabled]{opacity:.32;cursor:not-allowed}
+  .tile.static{cursor:default}
+  .tile.static:active{transform:none}
+
+  /* ---- rack tray ---- */
+  .tray{
+    display:flex;flex-wrap:wrap;gap:6px;min-height:52px;
+    padding:10px;border:1px dashed var(--line-strong);border-radius:10px;
+    background:var(--bg);
+  }
+  .tray .empty{color:var(--ink-soft);font-size:13px;align-self:center;padding:6px}
+  .countrow{
+    display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+    margin:12px 0 4px;
+  }
+  .count-badge{
+    font-family:var(--font-mono);font-weight:600;font-size:14px;
+    padding:5px 10px;border-radius:8px;background:var(--surface-2);
+  }
+  .count-badge.ok{background:var(--good-bg);color:var(--good)}
+  .count-badge.warn{background:var(--warn-bg);color:var(--warn)}
+
+  /* ---- keypad ---- */
+  .kp-group{margin-top:14px}
+  .kp-group h3{
+    font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--ink-soft);margin:0 0 7px;font-weight:600;
+  }
+  .kp-row{display:flex;flex-wrap:wrap;gap:6px}
+
+  /* ---- lines ---- */
+  .toppick{
+    background:var(--surface);border:1.5px solid var(--accent);
+    border-radius:var(--radius);padding:15px;box-shadow:var(--shadow);
+  }
+  .toppick .eyebrow{
+    font-family:var(--font-mono);font-size:10.5px;letter-spacing:.16em;
+    text-transform:uppercase;color:var(--accent);font-weight:600;
+  }
+  .toppick .pname{font-family:var(--font-display);font-weight:600;font-size:19px;margin:3px 0 2px;text-wrap:balance}
+  .away-line{display:flex;align-items:baseline;gap:8px;margin:8px 0 4px}
+  .away-n{font-family:var(--font-mono);font-weight:600;font-size:30px;color:var(--ink);line-height:1}
+  .away-lbl{font-size:12.5px;color:var(--ink-soft)}
+
+  .hand{
+    border:1px solid var(--line);border-radius:11px;padding:11px 12px;
+    background:var(--surface);margin-top:9px;
+  }
+  .hand-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .cat-dot{width:9px;height:9px;border-radius:50%;flex:none}
+  .cat-name{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);font-weight:600}
+  .hand-name{font-family:var(--font-display);font-weight:600;font-size:15px;margin:4px 0 2px}
+  .hand-meta{margin-left:auto;display:flex;align-items:center;gap:6px}
+  .chip{
+    font-family:var(--font-mono);font-size:11px;font-weight:600;
+    padding:3px 7px;border-radius:6px;background:var(--surface-2);color:var(--ink-soft);
+  }
+  .chip.away0{background:var(--good-bg);color:var(--good)}
+  .chip.jok{background:var(--warn-bg);color:var(--warn)}
+  .chip.lock{background:transparent;border:1px solid var(--line-strong)}
+  .tiles-line{display:flex;flex-wrap:wrap;gap:5px;align-items:center;margin-top:8px}
+  .tiles-line .lab{
+    font-size:10px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;
+    color:var(--ink-soft);margin-right:2px;
+  }
+  .assign{font-family:var(--font-mono);font-size:11px;color:var(--ink-soft);margin-top:7px}
+  .pattern-code{
+    font-family:var(--font-mono);font-size:11.5px;color:var(--ink-soft);
+    background:var(--bg);border:1px solid var(--line);border-radius:7px;
+    padding:6px 8px;margin-top:8px;overflow-x:auto;white-space:nowrap;
+  }
+
+  /* ---- card editor ---- */
+  .disclaim{
+    border:1px solid var(--warn);background:var(--warn-bg);color:var(--warn);
+    border-radius:10px;padding:11px 12px;font-size:12.5px;line-height:1.45;
+  }
+  .disclaim b{color:var(--warn)}
+  .editrow{
+    border:1px solid var(--line);border-radius:11px;padding:11px;
+    background:var(--surface);margin-top:10px;
+  }
+  .editrow .l1{display:flex;gap:8px;align-items:center}
+  .editrow input[type=text]{
+    flex:1;min-width:0;font:inherit;font-size:13px;
+    border:1px solid var(--line-strong);border-radius:8px;padding:8px 9px;
+    background:var(--bg);color:var(--ink);
+  }
+  .editrow input.mono{font-family:var(--font-mono);font-size:12px;margin-top:7px;width:100%}
+  .editrow input:focus-visible,.editrow select:focus-visible,.io textarea:focus-visible{
+    outline:2px solid var(--accent);outline-offset:1px;
+  }
+  .ctrls{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:8px}
+  .ctrls select,.ctrls input[type=number]{
+    font:inherit;font-size:12px;border:1px solid var(--line-strong);
+    border-radius:7px;padding:5px 6px;background:var(--bg);color:var(--ink);
+  }
+  .ctrls input[type=number]{width:52px}
+  .toggle{
+    font-family:var(--font-mono);font-size:11px;font-weight:600;cursor:pointer;
+    border:1px solid var(--line-strong);background:var(--bg);color:var(--ink-soft);
+    border-radius:7px;padding:5px 8px;
+  }
+  .toggle[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+  .del{margin-left:auto;border:1px solid var(--line-strong);background:transparent;color:var(--ink-soft);
+    border-radius:7px;padding:5px 9px;cursor:pointer;font:inherit;font-size:16px;line-height:1}
+  .del:hover{color:var(--crak);border-color:var(--crak)}
+  .status{font-size:11.5px;margin-top:7px;font-family:var(--font-mono)}
+  .status.bad{color:var(--crak)}
+  .status.warn{color:var(--warn)}
+  .status.ok{color:var(--good)}
+  .catgroup h3{
+    font-family:var(--font-display);font-size:14px;font-weight:600;
+    margin:20px 0 2px;display:flex;align-items:center;gap:7px;
+    border-bottom:1px solid var(--line);padding-bottom:6px;
+  }
+  .catgroup h3 .cat-add{margin-left:auto;font-family:var(--font-body);font-weight:600}
+  .nohands{margin:6px 0 0}
+  .io{margin-top:14px}
+  .io textarea{
+    width:100%;min-height:120px;font-family:var(--font-mono);font-size:11px;
+    border:1px solid var(--line-strong);border-radius:9px;padding:9px;
+    background:var(--bg);color:var(--ink);resize:vertical;
+  }
+  details.help{margin-top:12px;border:1px solid var(--line);border-radius:10px;background:var(--surface);padding:0 12px}
+  details.help summary{cursor:pointer;padding:11px 0;font-weight:600;font-size:13px}
+  details.help[open]{padding-bottom:12px}
+  .help table{border-collapse:collapse;width:100%;font-size:12px}
+  .help td{border-top:1px solid var(--line);padding:6px 4px;vertical-align:top}
+  .help td:first-child{font-family:var(--font-mono);color:var(--accent);white-space:nowrap;padding-right:12px}
+
+  .modal-ov{
+    position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;
+    padding:22px;background:rgba(12,10,6,.5);
+  }
+  .modal{
+    background:var(--surface);border:1px solid var(--line-strong);border-radius:14px;
+    padding:18px;max-width:330px;width:100%;box-shadow:var(--shadow);
+  }
+  .modal p{margin:0 0 15px;font-size:14px;line-height:1.45}
+  .modal-btns{display:flex;gap:8px;justify-content:flex-end}
+
+  .toast{
+    position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(12px);
+    background:var(--ink);color:var(--bg);font-size:13px;font-weight:500;
+    padding:9px 15px;border-radius:9px;opacity:0;pointer-events:none;
+    transition:opacity .18s ease, transform .18s ease;z-index:50;box-shadow:var(--shadow);
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+  .actbar{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+  .empty-note{
+    text-align:center;padding:26px 14px;color:var(--ink-soft);font-size:13.5px;
+    border:1px dashed var(--line-strong);border-radius:12px;
+  }
+  @media (prefers-reduced-motion:reduce){
+    .tile,.toast{transition:none}
+  }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brandrow">
+      <div class="wordmark">Line Caller <span class="tag-badge">AM 2026</span></div>
+      <button class="themebtn" id="themeBtn" type="button">Theme</button>
+    </div>
+    <nav class="seg" id="seg">
+      <button type="button" data-act="view" data-view="rack" aria-current="true">Rack <span class="pip" id="pipRack">13</span></button>
+      <button type="button" data-act="view" data-view="lines">Lines <span class="pip" id="pipLines">–</span></button>
+      <button type="button" data-act="view" data-view="card">Card <span class="pip" id="pipCard">0</span></button>
+    </nav>
+  </header>
+
+  <main id="views"></main>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.5.0/lz-string.min.js"></script>
+<script>
+/* ---------------------------------------------------------------
+   Line Caller — American Mah Jongg 2026 helper
+   Tile input by photo reference + tap keypad; hand-matching engine
+   ranks your card's lines by how few tiles away each one is.
+----------------------------------------------------------------*/
+
+/* ---- tile metadata ---- */
+const TILE = {
+  wn:{n:'N',s:'Wind',k:'wind'}, we:{n:'E',s:'Wind',k:'wind'},
+  ws:{n:'S',s:'Wind',k:'wind'}, ww:{n:'W',s:'Wind',k:'wind'},
+  rd:{n:'R',s:'Drgn',k:'drag-r'}, gd:{n:'G',s:'Drgn',k:'drag-g'},
+  sd:{n:'○',s:'Soap',k:'soap'},
+  fl:{n:'✿',s:'Flwr',k:'flower'}, jk:{n:'J',s:'Jokr',k:'joker'},
+};
+['d','b','c'].forEach(su=>{
+  const sName = su==='d'?'Dot':su==='b'?'Bam':'Crak';
+  const kName = su==='d'?'dot':su==='b'?'bam':'crak';
+  for(let i=1;i<=9;i++) TILE[su+i] = {n:String(i), s:sName, k:kName};
+});
+
+const ORDER = (()=>{
+  const o={}; let w=0;
+  ['d1','d2','d3','d4','d5','d6','d7','d8','d9',
+   'b1','b2','b3','b4','b5','b6','b7','b8','b9',
+   'c1','c2','c3','c4','c5','c6','c7','c8','c9',
+   'wn','we','ws','ww','rd','gd','sd','fl','jk'].forEach(c=> o[c]=w++);
+  return o;
+})();
+
+const CATS = ["2026","2468","Any Like Numbers","Quints","Consecutive Run",
+  "13 5 7 9","Winds & Dragons","369","Singles & Pairs","Other"];
+const CAT_COLOR = {
+  "2026":"#7a6f2b","2468":"#2f6f8f","Any Like Numbers":"#8a5a2b","Quints":"#6b3f8a",
+  "Consecutive Run":"#3f7a4a","13 5 7 9":"#8f3f6f","Winds & Dragons":"#5a5f68",
+  "369":"#2b6f6a","Singles & Pairs":"#8a3f3f","Other":"#5f5a52"
+};
+
+/* ---- example hands: FORMAT DEMOS, not the official NMJL 2026 card ---- */
+const DEFAULT_CARD = [
+  {cat:"2026", label:"FF  2026  2026  2026  (3 suits)", pattern:"FF, x:2026, y:2026, z:2026", points:25, parity:"any", nojoker:false, concealed:false},
+  {cat:"2026", label:"FF FF  2026 2026  66  (1 suit)", pattern:"FF FF, x:2026, x:2026, x6 x6", points:25, parity:"any", nojoker:false, concealed:false},
+  {cat:"2468", label:"222 444  666 888  22  (even, 3 suits)", pattern:"even: xn xn xn, xn+2 xn+2 xn+2, yn+4 yn+4 yn+4, yn+6 yn+6 yn+6, zn zn", points:25, parity:"even", nojoker:false, concealed:false},
+  {cat:"2468", label:"FF  2222 44  6666 88  (even, 1 suit)", pattern:"even: FF, xn xn xn xn, xn+2 xn+2, xn+4 xn+4 xn+4 xn+4, xn+6 xn+6", points:25, parity:"even", nojoker:false, concealed:false},
+  {cat:"Any Like Numbers", label:"NNNN NNNN NNNN  FF  (3 suits)", pattern:"xn xn xn xn, yn yn yn yn, zn zn zn zn, FF", points:25, parity:"any", nojoker:false, concealed:false},
+  {cat:"Quints", label:"NNNNN NNNNN  NN  FF", pattern:"xn xn xn xn xn, yn yn yn yn yn, FF, zn zn", points:40, parity:"any", nojoker:false, concealed:false},
+  {cat:"Consecutive Run", label:"5 running pairs + 2 pairs  (3 suits)", pattern:"xn xn, xn+1 xn+1, xn+2 xn+2, xn+3 xn+3, xn+4 xn+4, yn yn, yn+4 yn+4", points:30, parity:"any", nojoker:false, concealed:true},
+  {cat:"Consecutive Run", label:"NN NNN NNNN NNN NN  run of 5  (1 suit)", pattern:"xn xn, xn+1 xn+1 xn+1, xn+2 xn+2 xn+2 xn+2, xn+3 xn+3 xn+3, xn+4 xn+4", points:25, parity:"any", nojoker:false, concealed:false},
+  {cat:"13 5 7 9", label:"111 33  5555  77 999  (odd, 1 suit)", pattern:"odd: xn xn xn, xn+2 xn+2, xn+4 xn+4 xn+4 xn+4, xn+6 xn+6, xn+8 xn+8 xn+8", points:25, parity:"odd", nojoker:false, concealed:false},
+  {cat:"13 5 7 9", label:"FF  11 333  55 777  99  (odd, 3 suits)", pattern:"odd: FF, xn xn, xn+2 xn+2 xn+2, yn+4 yn+4, yn+6 yn+6 yn+6, zn+8 zn+8", points:30, parity:"odd", nojoker:false, concealed:false},
+  {cat:"369", label:"333 6666 999  33  99  (2 suits)", pattern:"x3 x3 x3, x6 x6 x6 x6, x9 x9 x9, y3 y3, y9 y9", points:25, parity:"any", nojoker:false, concealed:false},
+  {cat:"369", label:"FF  33 66 99  33 66 99  (2 suits)", pattern:"FF, x3 x3, x6 x6, x9 x9, y3 y3, y6 y6, y9 y9", points:30, parity:"any", nojoker:false, concealed:false},
+  {cat:"Winds & Dragons", label:"NNN SSS  RRR GGG  EE", pattern:"WN WN WN, WS WS WS, DR DR DR, DG DG DG, WE WE", points:25, parity:"any", nojoker:false, concealed:false},
+  {cat:"Winds & Dragons", label:"NEWS  NEWS  RRR  GGG", pattern:"WN WE WW WS, WN WE WW WS, DR DR DR, DG DG DG", points:30, parity:"any", nojoker:false, concealed:false},
+  {cat:"Singles & Pairs", label:"7 pairs, 1 suit  (NO jokers)", pattern:"x1 x1, x2 x2, x3 x3, x4 x4, x5 x5, x6 x6, x7 x7", points:50, parity:"any", nojoker:true, concealed:true},
+  {cat:"Singles & Pairs", label:"22 00 22 66  RRR  GGG  (NO jokers)", pattern:"x2 x2, x0 x0, x2 x2, x6 x6, DR DR DR, DG DG DG", points:50, parity:"any", nojoker:true, concealed:true},
+];
+
+/* ---- state ---- */
+const LS = {
+  card:'mahjong2026.card.v1',
+  rack:'mahjong2026.rack.v1',
+  view:'mahjong2026.view.v1',
+  theme:'mahjong2026.theme.v1',
+};
+let card = load(LS.card, null) || DEFAULT_CARD.map(h=>({...h, id:uid()}));
+card.forEach(h=>{ if(!h.id) h.id = uid(); });
+let rack = load(LS.rack, null) || ['wn','wn','ws','ws','rd','rd','gd','gd','gd','we','we','jk','jk'];
+let view = load(LS.view, null) || 'rack';
+let photoURL = null;
+let photoBig = false;
+
+/* ---- helpers ---- */
+function uid(){ return 'h'+Math.random().toString(36).slice(2,9); }
+function load(k, dflt){ try{ const v = localStorage.getItem(k); return v?JSON.parse(v):dflt; }catch(e){ return dflt; } }
+function save(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+function saveAll(){ save(LS.card, card); save(LS.rack, rack); save(LS.view, view); }
+function tally(arr){ const m={}; for(const x of arr) m[x]=(m[x]||0)+1; return m; }
+function esc(s){ return String(s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+/* pack the whole card into a URL-safe string (and back) for share links */
+function packCard(json){
+  if(typeof LZString !== 'undefined') return 'lz:' + LZString.compressToEncodedURIComponent(json);
+  return 'b64:' + encodeURIComponent(btoa(unescape(encodeURIComponent(json))));
+}
+function unpackCard(payload){
+  if(payload.startsWith('lz:')){
+    if(typeof LZString === 'undefined') throw new Error('lz missing');
+    return LZString.decompressFromEncodedURIComponent(payload.slice(3));
+  }
+  if(payload.startsWith('b64:')) return decodeURIComponent(escape(atob(decodeURIComponent(payload.slice(4)))));
+  if(typeof LZString !== 'undefined'){ const r = LZString.decompressFromEncodedURIComponent(payload); if(r) return r; }
+  return decodeURIComponent(payload);
+}
+function cardFromArray(arr){
+  return arr.map(h=>({
+    id: uid(),
+    cat: h.cat||'Other', label: h.label||'', pattern: h.pattern||'',
+    points: +h.points||25, parity: h.parity||'any',
+    nojoker: !!h.nojoker, concealed: !!h.concealed,
+  }));
+}
+
+let toastT;
+function toast(msg){
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  clearTimeout(toastT); toastT = setTimeout(()=> el.classList.remove('show'), 1600);
+}
+
+/* sandbox-safe confirm (window.confirm is blocked inside the artifact frame) */
+function askConfirm(msg, okLabel){
+  return new Promise(resolve=>{
+    const ov = document.createElement('div');
+    ov.className = 'modal-ov';
+    ov.innerHTML = '<div class="modal" role="alertdialog" aria-modal="true">'
+      + '<p>' + esc(msg) + '</p>'
+      + '<div class="modal-btns">'
+      + '<button type="button" class="btn ghost" data-mc="0">Cancel</button>'
+      + '<button type="button" class="btn primary" data-mc="1">' + esc(okLabel || 'OK') + '</button>'
+      + '</div></div>';
+    function done(val){ document.removeEventListener('keydown', onKey); ov.remove(); resolve(val); }
+    function onKey(e){ if(e.key==='Escape') done(false); }
+    ov.addEventListener('click', e=>{
+      if(e.target===ov){ done(false); return; }
+      const b = e.target.closest('[data-mc]');
+      if(b) done(b.dataset.mc==='1');
+    });
+    document.addEventListener('keydown', onKey);
+    document.body.appendChild(ov);
+    ov.querySelector('[data-mc="1"]').focus();
+  });
+}
+
+function tileHTML(code, cls){
+  const t = TILE[code]; if(!t) return '';
+  return `<span class="tile static ${cls||''} k-${t.k}"><span class="t-num">${t.n}</span><span class="t-suit">${t.s}</span></span>`;
+}
+function tileBtn(code, cls, act, disabled){
+  const t = TILE[code]; if(!t) return '';
+  return `<button type="button" class="tile ${cls||''} k-${t.k}" data-act="${act}" data-code="${code}"${disabled?' disabled':''}>`
+       + `<span class="t-num">${t.n}</span><span class="t-suit">${t.s}</span></button>`;
+}
+function sortRack(list){ return [...list].sort((a,b)=> (ORDER[a]??99)-(ORDER[b]??99)); }
+
+/* =========================================================
+   PATTERN ENGINE
+========================================================= */
+const PCACHE = new Map();
+function getParsed(h){
+  if(!PCACHE.has(h.id)) PCACHE.set(h.id, parseHand(h));
+  return PCACHE.get(h.id);
+}
+function unparse(h){ PCACHE.delete(h.id); }
+
+function parseHand(h){
+  let src = (h.pattern||'').trim();
+  const flags = { parity: h.parity||'any', nojoker: !!h.nojoker };
+  const fm = src.match(/^([a-z ]+):\s*(.*)$/i);
+  if(fm && /\b(odd|even|nojoker)\b/i.test(fm[1])){
+    const words = fm[1].toLowerCase().split(/\s+/).filter(Boolean);
+    if(words.includes('odd')) flags.parity='odd';
+    if(words.includes('even')) flags.parity='even';
+    if(words.includes('nojoker')) flags.nojoker=true;
+    src = fm[2].trim();
+  }
+  const blockStrs = src.split(',').map(s=>s.trim()).filter(Boolean);
+  const blocks = [];
+  const suitVars = new Set();
+  let usesN = false, maxOff = 0, usesDvar = false, usesM = false, ndragonSuit = null, usesWvar = false;
+  const errors = [];
+
+  for(const bs of blockStrs){
+    const expanded = bs.replace(/([xyz]):(\d+)/g, (m,s,ds)=> ds.split('').map(d=> s+d).join(' '));
+    const toks = expanded.split(/\s+/).filter(Boolean).map(parseToken);
+    const blk = [];
+    for(const tk of toks){
+      if(tk.kind==='bad'){ errors.push(tk.raw); continue; }
+      if(tk.kind==='var'){
+        suitVars.add(tk.suit);
+        if(tk.nvar){ usesN = true; maxOff = Math.max(maxOff, tk.off); }
+        if(tk.mvar) usesM = true;
+      }
+      if(tk.kind==='mdragon') suitVars.add(tk.suit);
+      if(tk.kind==='ndragon'){ suitVars.add(tk.suit); usesDvar = true; ndragonSuit = tk.suit; }
+      if(tk.kind==='dvar') usesDvar = true;
+      if(tk.kind==='wvar') usesWvar = true;
+      if(tk.bindSuit) suitVars.add(tk.bindSuit);
+      blk.push(tk);
+    }
+    if(blk.length) blocks.push(blk);
+  }
+  const count = blocks.reduce((s,b)=> s+b.length, 0);
+  const vars = ['x','y','z'].filter(v=> suitVars.has(v));
+  return { blocks, vars, usesN, maxOff, usesDvar, usesM, ndragonSuit, usesWvar, flags, count, errors };
+}
+
+function parseToken(t){
+  t = t.trim(); let m;
+  if(m = t.match(/^([xyz])n(?:\+([1-8]))?$/)) return {kind:'var', suit:m[1], nvar:true, off:m[2]?+m[2]:0};
+  if(m = t.match(/^([xyz])m$/)) return {kind:'var', suit:m[1], mvar:true};
+  if(m = t.match(/^([xyz])D!$/)) return {kind:'ndragon', suit:m[1]};
+  if(m = t.match(/^([xyz])D$/)) return {kind:'mdragon', suit:m[1]};
+  if(t === 'D?') return {kind:'dvar'};
+  if(t === 'W?') return {kind:'wvar'};
+  if(m = t.match(/^([xyz])0$/)) return {kind:'fixed', code:'sd', bindSuit:m[1]};
+  if(m = t.match(/^([xyz])([1-9])$/)) return {kind:'var', suit:m[1], nvar:false, num:+m[2]};
+  if(m = t.match(/^D([1-9])$/)) return {kind:'fixed', code:'d'+m[1]};
+  if(m = t.match(/^B([1-9])$/)) return {kind:'fixed', code:'b'+m[1]};
+  if(m = t.match(/^C([1-9])$/)) return {kind:'fixed', code:'c'+m[1]};
+  if(m = t.match(/^W([NESW])$/)) return {kind:'fixed', code:'w'+m[1].toLowerCase()};
+  if(t==='DR') return {kind:'fixed', code:'rd'};
+  if(t==='DG') return {kind:'fixed', code:'gd'};
+  if(t==='DS' || t==='D0') return {kind:'fixed', code:'sd'};
+  if(t==='FF' || t==='F') return {kind:'fixed', code:'fl'};
+  if(t==='JJ' || t==='J') return {kind:'fixed', code:'jk'};
+  return {kind:'bad', raw:t};
+}
+
+function kperms(arr, k){
+  if(k===0) return [[]];
+  const out = [];
+  arr.forEach((v,i)=>{
+    const rest = arr.slice(0,i).concat(arr.slice(i+1));
+    for(const p of kperms(rest, k-1)) out.push([v, ...p]);
+  });
+  return out;
+}
+
+function nValues(parsed){
+  if(!parsed.usesN) return [null];
+  const hi = 9 - parsed.maxOff;
+  let base;
+  if(parsed.flags.parity==='odd') base = [1,3,5,7,9];
+  else if(parsed.flags.parity==='even') base = [2,4,6,8];
+  else if(parsed.flags.parity==='369') base = [3,6,9];
+  else base = [1,2,3,4,5,6,7,8,9];
+  const vals = base.filter(v=> v>=1 && v<=hi);
+  return vals.length ? vals : [null];
+}
+
+function expand(parsed, suitMap, nVal, dVal, mVal, wVal){
+  return parsed.blocks.map(b=> b.map(tk=>{
+    if(tk.kind==='fixed') return tk.code;
+    if(tk.kind==='dvar' || tk.kind==='ndragon') return dVal;   // any-dragon (ndragon adds a not-matching rule, enforced in evaluateHand)
+    if(tk.kind==='wvar') return wVal;                          // any-wind: same choice everywhere
+    if(tk.kind==='mdragon'){
+      const su = suitMap[tk.suit];
+      return su==='d' ? 'sd' : su==='b' ? 'gd' : 'rd';   // Dot→Soap, Bam→Green, Crak→Red
+    }
+    const su = suitMap[tk.suit];
+    const num = tk.nvar ? (nVal + tk.off) : tk.mvar ? mVal : tk.num;
+    return su + num;
+  }));
+}
+
+/* score one concrete expansion against the rack */
+function scoreExpansion(blocks, rackCounts, jokers, allowJoker){
+  const avail = {...rackCounts};
+  const slots = [];
+  blocks.forEach((b,bi)=> b.forEach(code=> slots.push({code, bi})));
+  slots.sort((a,b)=> (avail[a.code]||0) - (avail[b.code]||0)); // contest scarce tiles first
+  const blkRemain = blocks.map(b=> b.length);
+  const have = [];
+  for(const s of slots){
+    if((avail[s.code]||0) > 0){ avail[s.code]--; blkRemain[s.bi]--; have.push(s.code); }
+  }
+  let jokersUsed = 0, jLeft = jokers;
+  if(allowJoker){
+    blocks.forEach((b,bi)=>{
+      // jokers fill pungs/kongs/quints only: 3+ of the SAME tile, never flowers,
+      // never mixed groups like NEWS, never pairs or singles
+      const uniform = b.length >= 3 && b.every(x=> x === b[0]) && b[0] !== 'fl';
+      if(uniform && blkRemain[bi] > 0 && jLeft > 0){
+        const u = Math.min(blkRemain[bi], jLeft);
+        jokersUsed += u; jLeft -= u; blkRemain[bi] -= u;
+      }
+    });
+  }
+  const realMatched = have.length;
+  const matched = Math.min(14, realMatched + jokersUsed);
+  const away = 14 - matched;
+
+  // need list = full requirement minus real tiles held
+  const needT = tally(blocks.flat());
+  const haveT = tally(have);
+  const need = [];
+  Object.keys(needT).forEach(code=>{
+    let n = needT[code] - (haveT[code]||0);
+    while(n-- > 0) need.push(code);
+  });
+  need.sort((a,b)=> (ORDER[a]??99)-(ORDER[b]??99));
+
+  return { away, realMatched, jokersUsed, have:sortRack(have), need };
+}
+
+function evaluateHand(h, rackCounts, jokers){
+  const parsed = getParsed(h);
+  if(parsed.errors.length || parsed.blocks.length===0){
+    return { ok:false, parsed };
+  }
+  const suitMaps = parsed.vars.length
+    ? kperms(['d','b','c'], parsed.vars.length).map(combo=>{
+        const m={}; parsed.vars.forEach((v,i)=> m[v]=combo[i]); return m;
+      })
+    : [{}];
+  const nVals = nValues(parsed);
+  const mBase = parsed.flags.parity==='odd' ? [1,3,5,7,9]
+              : parsed.flags.parity==='even' ? [2,4,6,8]
+              : parsed.flags.parity==='369' ? [3,6,9]
+              : [1,2,3,4,5,6,7,8,9];
+  const mVals = parsed.usesM ? mBase : [null];
+  const dVals = parsed.usesDvar ? ['rd','gd','sd'] : [null];
+  const wVals = parsed.usesWvar ? ['wn','we','ww','ws'] : [null];
+  const allowJoker = !parsed.flags.nojoker;
+
+  let best = null;
+  for(const sm of suitMaps){
+    for(const nv of nVals){
+      for(const mv of mVals){
+        if(nv!=null && mv!=null && nv===mv) continue;   // "2 numbers" must differ
+        for(const dv of dVals){
+          if(parsed.ndragonSuit && dv!=null){
+            const match = sm[parsed.ndragonSuit]==='d' ? 'sd' : sm[parsed.ndragonSuit]==='b' ? 'gd' : 'rd';
+            if(dv===match) continue;                     // "opposite" dragon can't match the number suit
+          }
+          for(const wv of wVals){
+            const blocks = expand(parsed, sm, nv, dv, mv, wv);
+            const sc = scoreExpansion(blocks, rackCounts, jokers, allowJoker);
+            const better = !best
+              || sc.away < best.sc.away
+              || (sc.away===best.sc.away && sc.jokersUsed < best.sc.jokersUsed);
+            if(better) best = { sc, sm, nv, mv, dv, wv, blocks };
+          }
+        }
+      }
+    }
+  }
+  // readable assignment note
+  const parts = [];
+  const suitName = {d:'Dot', b:'Bam', c:'Crak'};
+  const dragName = {rd:'Red', gd:'Green', sd:'Soap'};
+  parsed.vars.forEach(v=> parts.push(`${v} → ${suitName[best.sm[v]]}`));
+  if(best.nv!=null) parts.push(`n = ${best.nv}`);
+  if(best.mv!=null) parts.push(`m = ${best.mv}`);
+  if(best.dv!=null) parts.push(`dragon = ${dragName[best.dv]}`);
+  if(best.wv!=null) parts.push(`wind = ${({wn:'North',we:'East',ww:'West',ws:'South'})[best.wv]}`);
+
+  return {
+    ok:true, parsed,
+    away: best.sc.away,
+    jokersUsed: best.sc.jokersUsed,
+    have: best.sc.have,
+    need: best.sc.need,
+    assign: parts.join('   ·   '),
+    concealed: !!h.concealed,
+    nojoker: parsed.flags.nojoker,
+  };
+}
+
+function rankLines(){
+  const rc = tally(rack.filter(c=> c!=='jk'));
+  const jokers = rack.filter(c=> c==='jk').length;
+  const rows = card.map(h=>{
+    const ev = evaluateHand(h, rc, jokers);
+    return { h, ev };
+  }).filter(r=> r.ev.ok);
+  rows.sort((a,b)=>
+    a.ev.away - b.ev.away
+    || a.ev.jokersUsed - b.ev.jokersUsed
+    || (b.h.points||0) - (a.h.points||0)
+  );
+  return rows;
+}
+
+/* =========================================================
+   RENDERING
+========================================================= */
+const views = document.getElementById('views');
+
+function setView(v){
+  view = v; save(LS.view, v);
+  document.querySelectorAll('#seg button').forEach(b=>
+    b.setAttribute('aria-current', String(b.dataset.view===v)));
+  render();
+}
+
+function render(){
+  document.getElementById('pipRack').textContent = String(rack.length);
+  document.getElementById('pipCard').textContent = String(card.length);
+  const ranked = view==='lines' ? rankLines() : null;
+  document.getElementById('pipLines').textContent =
+    ranked && ranked.length ? String(ranked[0].ev.away) : '–';
+
+  if(view==='rack') views.innerHTML = viewRack();
+  else if(view==='lines') views.innerHTML = viewLines(ranked);
+  else views.innerHTML = viewCard();
+}
+
+/* ---- RACK VIEW ---- */
+function viewRack(){
+  const n = rack.length;
+  const cls = (n===13 || n===14) ? 'ok' : 'warn';
+  const jok = rack.filter(c=>c==='jk').length;
+  const trayInner = n
+    ? sortRack(rack).map((c,i)=> tileBtn(c,'sm','rack-del','')+'').join('')
+    : '<span class="empty">Tap tiles below to build your rack — or use the photo as a reference.</span>';
+
+  const kp = [
+    ['Dots', ['d1','d2','d3','d4','d5','d6','d7','d8','d9']],
+    ['Bams', ['b1','b2','b3','b4','b5','b6','b7','b8','b9']],
+    ['Cracks', ['c1','c2','c3','c4','c5','c6','c7','c8','c9']],
+    ['Winds', ['wn','we','ws','ww']],
+    ['Dragons', ['rd','gd','sd']],
+    ['Flower / Joker', ['fl','jk']],
+  ].map(([name, codes])=>`
+    <div class="kp-group">
+      <h3>${name}</h3>
+      <div class="kp-row">${codes.map(c=> tileBtn(c,'','rack-add', n>=14)).join('')}</div>
+    </div>`).join('');
+
+  const photoBlock = photoURL ? `
+    <div class="thumb ${photoBig?'big':''}">
+      <img src="${photoURL}" alt="Your tiles" data-act="photo-toggle">
+      <button class="btn tiny ghost rm" type="button" data-act="photo-clear">Remove</button>
+    </div>` : '';
+
+  return `
+  <section class="panel">
+    <div class="photo-drop">
+      <label class="btn primary" for="camIn">📷 Take photo</label>
+      <label class="btn" for="fileIn">Choose image</label>
+      <span class="fine">Reference only — the photo stays on your device.</span>
+      <input type="file" id="camIn" accept="image/*" capture="environment">
+      <input type="file" id="fileIn" accept="image/*">
+    </div>
+    ${photoBlock}
+  </section>
+
+  <h2 class="section">Your rack</h2>
+  <div class="tray">${trayInner}</div>
+  <div class="countrow">
+    <span class="count-badge ${cls}">${n} tile${n===1?'':'s'}</span>
+    ${jok?`<span class="count-badge">${jok} joker${jok===1?'':'s'}</span>`:''}
+    <button class="btn tiny ghost" type="button" data-act="rack-clear">Clear rack</button>
+    <button class="btn tiny" type="button" data-act="view" data-view="lines">See best lines →</button>
+  </div>
+  <p class="fine">Enter 13 tiles for a hand in progress, or 14 right after you pick / claim. Tap a tile in the rack to remove it.</p>
+
+  <h2 class="section">Add tiles</h2>
+  ${kp}
+  `;
+}
+
+/* ---- LINES VIEW ---- */
+function viewLines(ranked){
+  if(!card.length) return `<div class="empty-note">No hands on your card yet.<br>Go to <b>Card</b> and add the hands from your 2026 card.</div>`;
+  if(rack.length===0) return `<div class="empty-note">Your rack is empty.<br>Go to <b>Rack</b> and enter your tiles first.</div>`;
+  if(!ranked.length) return `<div class="empty-note">Every hand on your card has a syntax error.<br>Check the <b>Card</b> tab.</div>`;
+
+  const top = ranked[0];
+  const rest = ranked.slice(1, 8);
+
+  const nextTiles = top.ev.need.slice(0,4).map(c=> tileHTML(c,'sm')).join('')
+    || '<span class="fine">Complete — you have every tile.</span>';
+
+  const topHTML = `
+    <div class="toppick">
+      <div class="eyebrow">Go for this line</div>
+      <div class="hand-head" style="margin-top:4px">
+        <span class="cat-dot" style="background:${CAT_COLOR[top.h.cat]||'#888'}"></span>
+        <span class="cat-name">${esc(top.h.cat)}</span>
+        ${top.ev.concealed?'<span class="chip lock">concealed</span>':''}
+        ${top.ev.nojoker?'<span class="chip lock">no jokers</span>':''}
+      </div>
+      <div class="pname">${esc(top.h.label||'(unnamed hand)')}</div>
+      <div class="away-line">
+        <span class="away-n">${top.ev.away}</span>
+        <span class="away-lbl">tile${top.ev.away===1?'':'s'} away${top.ev.jokersUsed?` · using ${top.ev.jokersUsed} joker${top.ev.jokersUsed===1?'':'s'}`:''} · ${top.h.points||0} pts</span>
+      </div>
+      ${top.ev.assign?`<div class="assign">${esc(top.ev.assign)}</div>`:''}
+      <div class="tiles-line"><span class="lab">Need next</span>${nextTiles}</div>
+    </div>`;
+
+  const restHTML = rest.map(r=>{
+    const need = r.ev.need.slice(0,6).map(c=> tileHTML(c,'xs')).join('') || '<span class="fine">complete</span>';
+    return `
+    <div class="hand">
+      <div class="hand-head">
+        <span class="cat-dot" style="background:${CAT_COLOR[r.h.cat]||'#888'}"></span>
+        <span class="cat-name">${esc(r.h.cat)}</span>
+        <span class="hand-meta">
+          <span class="chip ${r.ev.away===0?'away0':''}">${r.ev.away} away</span>
+          ${r.ev.jokersUsed?`<span class="chip jok">${r.ev.jokersUsed}J</span>`:''}
+          <span class="chip">${r.h.points||0}p</span>
+        </span>
+      </div>
+      <div class="hand-name">${esc(r.h.label||'(unnamed hand)')}</div>
+      ${r.ev.assign?`<div class="assign">${esc(r.ev.assign)}</div>`:''}
+      <div class="tiles-line"><span class="lab">Need</span>${need}</div>
+    </div>`;
+  }).join('');
+
+  return `
+    <h2 class="section">Best lines for your rack</h2>
+    ${topHTML}
+    ${restHTML}
+    <p class="fine" style="margin-top:14px">Ranking counts jokers only in pungs, kongs and quints (never pairs or singles), and skips jokers entirely on hands you marked <b>no jokers</b>. “Need next” shows concrete tiles once suits are locked in.</p>
+  `;
+}
+
+/* ---- CARD VIEW ---- */
+function viewCard(){
+  const groups = {};
+  card.forEach(h=>{ (groups[h.cat] = groups[h.cat]||[]).push(h); });
+  const orderedCats = CATS.concat(Object.keys(groups).filter(c=> !CATS.includes(c)));
+
+  const groupsHTML = orderedCats.map(cat=>`
+    <div class="catgroup">
+      <h3>
+        <span class="cat-dot" style="background:${CAT_COLOR[cat]||'#888'}"></span>${esc(cat)}
+        <button class="btn tiny ghost cat-add" type="button" data-act="add-hand" data-cat="${esc(cat)}">+ hand</button>
+      </h3>
+      ${(groups[cat]||[]).map(editRow).join('') || '<p class="fine nohands">No hands in this category yet.</p>'}
+    </div>`).join('');
+
+  return `
+  <h2 class="section">Your 2026 card</h2>
+  <div class="disclaim">
+    <b>These are format examples, not the official card.</b> The National Mah Jongg League 2026 hands are
+    copyrighted, so they aren't built in. Replace the rows below with the hands from your own paper card
+    &mdash; they're saved on this device.
+  </div>
+
+  <p class="fine">Tap <b>+ hand</b> on any category to add a blank row there, then fill in the name and pattern.</p>
+  <div class="actbar">
+    <button class="btn tiny ghost" type="button" data-act="restore">Restore examples</button>
+    <button class="btn tiny ghost" type="button" data-act="clear-card">Clear all</button>
+  </div>
+
+  ${groupsHTML}
+
+  <details class="help">
+    <summary>Pattern syntax</summary>
+    <table class="help">
+      <tr><td>D5 B1 C9</td><td>A concrete tile: 5&nbsp;Dot, 1&nbsp;Bam, 9&nbsp;Crak</td></tr>
+      <tr><td>WN WE WW WS</td><td>North, East, West, South winds</td></tr>
+      <tr><td>DR DG DS</td><td>Red dragon, Green dragon, Soap (white / zero)</td></tr>
+      <tr><td>xD yD zD</td><td>The dragon that <i>matches</i> that suit: Bam&rarr;Green, Crak&rarr;Red, Dot&rarr;Soap</td></tr>
+      <tr><td>D?</td><td>Any one dragon &mdash; the app picks Red / Green / Soap, same choice everywhere <code>D?</code> appears</td></tr>
+      <tr><td>W?</td><td>Any one wind &mdash; the app picks N / E / W / S, same choice everywhere <code>W?</code> appears</td></tr>
+      <tr><td>xD!</td><td>An "opposite" dragon: any dragon whose suit is <i>not</i> the suit <code>x</code> lands on</td></tr>
+      <tr><td>FF</td><td>Flower</td></tr>
+      <tr><td>x5&nbsp; y5&nbsp; z5</td><td>Number 5 in an <i>unknown</i> suit. Different letters = different suits, tried every way.</td></tr>
+      <tr><td>xn xn+1 xn+2</td><td>A run in one suit: <code>n</code> is any starting number, <code>+k</code> steps up.</td></tr>
+      <tr><td>xm</td><td>A <i>second</i>, unrelated number in a suit (for "any 2 numbers" hands). Always different from <code>n</code>.</td></tr>
+      <tr><td>x:2026</td><td>Shorthand for <code>x2 x0 x2 x6</code> (0 = Soap)</td></tr>
+      <tr><td>,</td><td>Separates groups. Jokers fill only a group of 3+ identical tiles (not NEWS, flowers, pairs, singles).</td></tr>
+      <tr><td>odd: / even:</td><td>Put at the very start to force <code>n</code> odd or even.</td></tr>
+    </table>
+    <p class="fine">Each hand should total 14 tiles. Use the <b>J</b> toggle for no-joker hands and <b>C</b> for concealed.</p>
+  </details>
+
+  <div class="io">
+    <h2 class="section">Backup &amp; share</h2>
+    <p class="fine"><b>Copy card link</b> makes a link with your whole card baked in — send it to someone and they tap it to import. Or keep the <b>text</b> below somewhere safe as a backup, and paste one back in to restore.</p>
+    <div class="actbar">
+      <button class="btn tiny" type="button" data-act="card-link">Copy card link</button>
+    </div>
+    <textarea id="ioBox" spellcheck="false">${esc(JSON.stringify(card.map(stripHand), null, 1))}</textarea>
+    <div class="actbar">
+      <button class="btn tiny ghost" type="button" data-act="io-copy">Copy text</button>
+      <button class="btn tiny ghost" type="button" data-act="io-load">Load from text</button>
+    </div>
+  </div>
+  `;
+}
+
+function stripHand(h){
+  const {id, cat, label, pattern, points, parity, nojoker, concealed} = h;
+  return {cat, label, pattern, points, parity, nojoker, concealed};
+}
+
+function editRow(h){
+  const parsed = parseHand(h);
+  let status = '', scls = 'ok';
+  if(parsed.errors.length){ status = 'unknown token: ' + parsed.errors.join(', '); scls='bad'; }
+  else if(parsed.count !== 14){ status = parsed.count + ' tiles (should be 14)'; scls='warn'; }
+  else { status = '14 tiles ✓'; scls='ok'; }
+
+  const catOpts = CATS.map(c=> `<option value="${esc(c)}"${c===h.cat?' selected':''}>${esc(c)}</option>`).join('');
+  return `
+  <div class="editrow" data-row="${h.id}">
+    <div class="l1">
+      <input type="text" data-field="label" data-id="${h.id}" value="${esc(h.label||'')}" placeholder="Hand name, e.g. FF 2026 2026 2026" aria-label="Hand name">
+    </div>
+    <input type="text" class="mono" data-field="pattern" data-id="${h.id}" value="${esc(h.pattern||'')}" placeholder="FF, x:2026, y:2026, z:2026" aria-label="Pattern">
+    <div class="ctrls">
+      <select data-field="cat" data-id="${h.id}" aria-label="Category">${catOpts}</select>
+      <select data-field="parity" data-id="${h.id}" aria-label="Parity">
+        <option value="any"${h.parity==='any'?' selected':''}>n: any</option>
+        <option value="odd"${h.parity==='odd'?' selected':''}>n: odd</option>
+        <option value="even"${h.parity==='even'?' selected':''}>n: even</option>
+        <option value="369"${h.parity==='369'?' selected':''}>n: 3·6·9</option>
+      </select>
+      <input type="number" data-field="points" data-id="${h.id}" value="${h.points||25}" min="0" max="99" aria-label="Points">
+      <button type="button" class="toggle" data-act="toggle" data-tf="nojoker" data-id="${h.id}" aria-pressed="${!!h.nojoker}" title="No jokers">J</button>
+      <button type="button" class="toggle" data-act="toggle" data-tf="concealed" data-id="${h.id}" aria-pressed="${!!h.concealed}" title="Concealed">C</button>
+      <button type="button" class="del" data-act="del-hand" data-id="${h.id}" aria-label="Delete hand">&times;</button>
+    </div>
+    <div class="status ${scls}" data-status="${h.id}">${status}</div>
+  </div>`;
+}
+
+/* =========================================================
+   EVENTS
+========================================================= */
+function findHand(id){ return card.find(h=> h.id===id); }
+
+document.addEventListener('click', async e=>{
+  const t = e.target.closest('[data-act]');
+  if(!t) return;
+  const act = t.dataset.act;
+
+  if(act==='view'){ setView(t.dataset.view); return; }
+
+  if(act==='rack-add'){
+    if(rack.length>=14){ toast('Rack is full (14)'); return; }
+    rack.push(t.dataset.code); saveAll(); render(); return;
+  }
+  if(act==='rack-del'){
+    const i = rack.indexOf(t.dataset.code);
+    if(i>=0){ rack.splice(i,1); saveAll(); render(); } return;
+  }
+  if(act==='rack-clear'){
+    if(!rack.length){ toast('Rack is already empty'); return; }
+    if(await askConfirm('Clear all tiles from your rack?', 'Clear rack')){ rack=[]; saveAll(); render(); }
+    return;
+  }
+  if(act==='photo-toggle'){ photoBig = !photoBig; render(); return; }
+  if(act==='photo-clear'){
+    if(photoURL){ URL.revokeObjectURL(photoURL); photoURL=null; photoBig=false; render(); } return;
+  }
+
+  if(act==='add-hand'){
+    const nid = uid();
+    card.push({ id:nid, cat: t.dataset.cat || 'Other', label:'', pattern:'', points:25, parity:'any', nojoker:false, concealed:false });
+    saveAll(); render();
+    const row = document.querySelector('[data-row="'+nid+'"]');
+    if(row){
+      row.scrollIntoView({block:'center', behavior:'smooth'});
+      const inp = row.querySelector('input[data-field="label"]');
+      if(inp) inp.focus();
+    }
+    return;
+  }
+  if(act==='del-hand'){
+    const h = findHand(t.dataset.id);
+    if(h && await askConfirm('Delete "'+(h.label||'this hand')+'"?', 'Delete')){
+      card = card.filter(x=> x.id!==t.dataset.id); saveAll(); render();
+    } return;
+  }
+  if(act==='restore'){
+    if(await askConfirm('Replace your card with the built-in examples? Your current hands will be lost.', 'Restore')){
+      card = DEFAULT_CARD.map(h=>({...h, id:uid()})); saveAll(); render();
+    } return;
+  }
+  if(act==='clear-card'){
+    if(await askConfirm('Remove every hand from your card?', 'Clear all')){ card=[]; saveAll(); render(); } return;
+  }
+  if(act==='toggle'){
+    const h = findHand(t.dataset.id); if(!h) return;
+    const f = t.dataset.tf; h[f] = !h[f];
+    t.setAttribute('aria-pressed', String(!!h[f]));
+    unparse(h); saveAll(); refreshStatus(h);
+    return;
+  }
+  if(act==='io-copy'){
+    const box = document.getElementById('ioBox');
+    box.focus(); box.select();
+    let ok = false;
+    try{ ok = document.execCommand('copy'); }catch(e){}
+    if(!ok && navigator.clipboard){
+      try{ await navigator.clipboard.writeText(box.value); ok = true; }catch(e){}
+    }
+    toast(ok ? 'Card copied' : 'Select the text and copy manually');
+    return;
+  }
+  if(act==='io-load'){
+    const box = document.getElementById('ioBox');
+    let arr;
+    try{
+      arr = JSON.parse(box.value);
+      if(!Array.isArray(arr)) throw 0;
+    }catch(err){ toast('That text is not valid card JSON'); return; }
+    if(!await askConfirm('Replace your card with '+arr.length+' hand(s) from the text?', 'Load')) return;
+    card = cardFromArray(arr);
+    saveAll(); render(); toast('Card loaded');
+    return;
+  }
+  if(act==='card-link'){
+    let url;
+    try{
+      url = location.origin + location.pathname + '#card=' + packCard(JSON.stringify(card.map(stripHand)));
+    }catch(e){ toast('Could not build the link'); return; }
+    let ok = false;
+    try{ await navigator.clipboard.writeText(url); ok = true; }catch(e){}
+    if(!ok){
+      const box = document.getElementById('ioBox');
+      if(box){ box.value = url; box.focus(); box.select(); try{ ok = document.execCommand('copy'); }catch(e){} }
+    }
+    toast(ok ? 'Card link copied — send it to share' : 'Link is in the box below — copy it');
+    return;
+  }
+});
+
+/* card editor: update model on input without full re-render (keeps focus) */
+document.addEventListener('input', e=>{
+  const f = e.target.closest('[data-field]');
+  if(f){
+    const h = findHand(f.dataset.id); if(!h) return;
+    const field = f.dataset.field;
+    h[field] = field==='points' ? (+f.value||0) : f.value;
+    unparse(h);
+    save(LS.card, card);
+    if(field==='pattern' || field==='parity') refreshStatus(h);
+    document.getElementById('pipCard').textContent = String(card.length);
+    return;
+  }
+});
+document.addEventListener('change', e=>{
+  const f = e.target.closest('select[data-field]');
+  if(f){
+    const h = findHand(f.dataset.id); if(!h) return;
+    h[f.dataset.field] = f.value;
+    unparse(h); save(LS.card, card);
+    if(f.dataset.field==='parity') refreshStatus(h);
+  }
+});
+
+function refreshStatus(h){
+  const el = document.querySelector(`[data-status="${h.id}"]`);
+  if(!el) return;
+  const p = parseHand(h);
+  if(p.errors.length){ el.textContent = 'unknown token: '+p.errors.join(', '); el.className='status bad'; }
+  else if(p.count!==14){ el.textContent = p.count+' tiles (should be 14)'; el.className='status warn'; }
+  else { el.textContent = '14 tiles ✓'; el.className='status ok'; }
+}
+
+/* photo inputs */
+function hookPhoto(id){
+  document.addEventListener('change', e=>{
+    if(e.target.id!==id) return;
+    const file = e.target.files && e.target.files[0];
+    if(!file) return;
+    if(photoURL) URL.revokeObjectURL(photoURL);
+    photoURL = URL.createObjectURL(file);
+    photoBig = false;
+    render();
+    e.target.value = '';
+  });
+}
+hookPhoto('camIn'); hookPhoto('fileIn');
+
+/* theme toggle: cycle system -> light -> dark */
+const themeBtn = document.getElementById('themeBtn');
+let themePref = load(LS.theme, 'system');
+function applyTheme(){
+  const root = document.documentElement;
+  if(themePref==='system') root.removeAttribute('data-theme');
+  else root.setAttribute('data-theme', themePref);
+  themeBtn.textContent = themePref==='system' ? 'Theme: Auto' : themePref==='light' ? 'Theme: Light' : 'Theme: Dark';
+}
+themeBtn.addEventListener('click', ()=>{
+  themePref = themePref==='system' ? 'light' : themePref==='light' ? 'dark' : 'system';
+  save(LS.theme, themePref); applyTheme();
+});
+applyTheme();
+
+/* boot — import a shared card if the link carries one, then render */
+(async function boot(){
+  const h = location.hash || '';
+  if(h.startsWith('#card=')){
+    let arr = null;
+    try{ arr = JSON.parse(unpackCard(h.slice(6))); }catch(e){ arr = null; }
+    // don't re-prompt on refresh
+    try{ history.replaceState(null, '', location.pathname + location.search); }catch(e){ location.hash = ''; }
+    if(Array.isArray(arr) && arr.length){
+      if(await askConfirm('This link has a card with ' + arr.length + ' hand' + (arr.length===1?'':'s') + '. Import it? This replaces the card on this device.', 'Import')){
+        card = cardFromArray(arr);
+        saveAll();
+        view = 'card'; save(LS.view, view);
+        toast('Card imported');
+      }
+    } else {
+      toast('That share link could not be read');
+    }
+  }
+  setView(view);
+})();
+</script>
