@@ -887,12 +887,8 @@ function render(){
   document.getElementById('pipRack').textContent = String(rack.length);
   document.getElementById('pipCard').textContent = String(card.length);
   const ranked = view==='lines' ? rankLines() : null;
-  let pipL = '–';
-  if(ranked && ranked.length){
-    const pr = pickedLine ? ranked.find(r=> r.h.id === pickedLine) : null;
-    pipL = String((pr || ranked[0]).ev.away);
-  }
-  document.getElementById('pipLines').textContent = pipL;
+  document.getElementById('pipLines').textContent =
+    (ranked && ranked.length) ? String(ranked[0].ev.away) : '–';
 
   if(view==='rack') views.innerHTML = viewRack();
   else if(view==='lines') views.innerHTML = viewLines(ranked);
@@ -1000,15 +996,15 @@ function viewLines(ranked){
   if(rack.length===0) return `<div class="empty-note">Your rack is empty.<br>Go to <b>Rack</b> and enter your tiles first.</div>`;
   if(!ranked.length) return `<div class="empty-note">Every hand on your card has a syntax error.<br>Check the <b>Card</b> tab.</div>`;
 
-  const pickRow = pickedLine ? ranked.find(r=> r.h.id === pickedLine) : null;
-  const head = pickRow || ranked[0];
-  const rest = ranked.filter(r=> r.h.id !== head.h.id).slice(0, 7);
+  // top spot is always whichever hand is genuinely fewest tiles away — a pick never displaces it
+  const head = ranked[0];
+  const rest = ranked.slice(1, 8);
 
   return `
-    <h2 class="section">${pickRow ? 'Your line' : 'Best lines for your rack'}</h2>
-    ${lineCardBig(head, !!pickRow)}
+    <h2 class="section">Best lines for your rack</h2>
+    ${lineCardBig(head, head.h.id===pickedLine)}
     ${rest.map(r=> lineCardRow(r, r.h.id===pickedLine)).join('')}
-    <p class="fine" style="margin-top:14px">Tap any line to mark it as the one you're going for — it pins to the top and the app keeps tracking it as your rack changes. Tap it again to unpick.</p>
+    <p class="fine" style="margin-top:14px">Lines are always ranked by fewest tiles away, low to high. Tap a line to check it off as the one you're going for — it stays marked wherever it ranks as your rack changes. Tap it again to unmark.</p>
   `;
 }
 
