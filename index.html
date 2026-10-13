@@ -166,8 +166,8 @@
   }
   .brandrow{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
   .wordmark{
-    font-family:var(--font-display);
-    font-weight:600;font-size:20px;letter-spacing:.01em;
+    font-family:Georgia, "Times New Roman", serif;
+    font-weight:700;font-size:21px;letter-spacing:0;
     display:flex;align-items:baseline;gap:8px;
   }
   .wordmark .tag-badge{
@@ -543,7 +543,7 @@ const ORDER = (()=>{
 })();
 
 const CATS = ["2026","2468","Any Like Numbers","Quints","Consecutive Run",
-  "13 5 7 9","Winds & Dragons","369","Singles & Pairs","Other"];
+  "13 5 7 9","Winds & Dragons","369","Singles & Pairs"];
 const CAT_COLOR = {
   "2026":"#7a6f2b","2468":"#2f6f8f","Any Like Numbers":"#8a5a2b","Quints":"#6b3f8a",
   "Consecutive Run":"#3f7a4a","13 5 7 9":"#8f3f6f","Winds & Dragons":"#5a5f68",
@@ -1010,7 +1010,10 @@ function render(){
     (ranked && ranked.length) ? String(ranked[0].ev.away) : '–';
 
   if(view==='rack') views.innerHTML = viewRack();
-  else if(view==='lines') views.innerHTML = viewLines(ranked);
+  else if(view==='lines') views.innerHTML = viewLines(ranked) + `
+    <div class="cta-bar">
+      <button class="btn primary cta" type="button" data-act="view" data-view="rack">← See rack</button>
+    </div>`;
   else views.innerHTML = viewSettings();
 }
 
@@ -1144,7 +1147,8 @@ function viewCard(){
     </div>`).join('');
 
   return `
-  <p class="fine" style="margin-top:14px">Tap <b>+ hand</b> on any category to add a blank row there, then fill in the name and pattern.
+  <h2 class="section">Lines</h2>
+  <p class="fine">Tap <b>+ hand</b> on any category to add a blank row there, then fill in the name and pattern.
   The coloured line under each pattern follows your card's ink:
   <span class="pp-x">x = green</span>, <span class="pp-z">z = red</span>, <span class="pp-y">y = black</span>.</p>
   <div class="actbar">
@@ -1154,27 +1158,6 @@ function viewCard(){
 
   ${groupsHTML}
 
-  <details class="help">
-    <summary>Pattern syntax</summary>
-    <table class="help">
-      <tr><td>D5 B1 C9</td><td>A concrete tile: 5&nbsp;Dot, 1&nbsp;Bam, 9&nbsp;Crak</td></tr>
-      <tr><td>WN WE WW WS</td><td>North, East, West, South winds</td></tr>
-      <tr><td>DR DG DS</td><td>Red dragon, Green dragon, Soap (white / zero)</td></tr>
-      <tr><td>xD yD zD</td><td>The dragon that <i>matches</i> that suit: Bam&rarr;Green, Crak&rarr;Red, Dot&rarr;Soap</td></tr>
-      <tr><td>D?</td><td>Any one dragon &mdash; the app picks Red / Green / Soap, same choice everywhere <code>D?</code> appears</td></tr>
-      <tr><td>W?</td><td>Any one wind &mdash; the app picks N / E / W / S, same choice everywhere <code>W?</code> appears</td></tr>
-      <tr><td>xD!</td><td>An "opposite" dragon: any dragon whose suit is <i>not</i> the suit <code>x</code> lands on</td></tr>
-      <tr><td>FF</td><td>Flower</td></tr>
-      <tr><td>x5&nbsp; y5&nbsp; z5</td><td>Number 5 in an <i>unknown</i> suit. Different letters = different suits, tried every way.</td></tr>
-      <tr><td>xn xn+1 xn+2</td><td>A run in one suit: <code>n</code> is any starting number, <code>+k</code> steps up.</td></tr>
-      <tr><td>xm</td><td>A <i>second</i>, unrelated number in a suit (for "any 2 numbers" hands). Always different from <code>n</code>.</td></tr>
-      <tr><td>x:2026</td><td>Shorthand for <code>x2 x0 x2 x6</code> (0 = Soap)</td></tr>
-      <tr><td>,</td><td>Separates groups. Jokers fill only a group of 3+ identical tiles (not NEWS, flowers, pairs, singles).</td></tr>
-      <tr><td>odd: / even:</td><td>Put at the very start to force <code>n</code> odd or even.</td></tr>
-    </table>
-    <p class="fine">Each hand should total 14 tiles. Use the <b>J</b> toggle for no-joker hands and <b>C</b> for concealed.</p>
-  </details>
-
   <div class="io">
     <h2 class="section">Backup &amp; share</h2>
     <p class="fine"><b>Copy card link</b> makes a link with your whole card baked in — send it to someone and they tap it to import. Or keep the <b>text</b> below somewhere safe as a backup, and paste one back in to restore.</p>
@@ -1183,7 +1166,6 @@ function viewCard(){
     </div>
     <textarea id="ioBox" spellcheck="false">${esc(JSON.stringify(card.map(stripHand), null, 1))}</textarea>
     <div class="actbar">
-      <button class="btn tiny ghost" type="button" data-act="io-copy">Copy text</button>
       <button class="btn tiny ghost" type="button" data-act="io-load">Load from text</button>
     </div>
   </div>
