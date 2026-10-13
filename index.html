@@ -34,7 +34,7 @@
     --wind:#24272e;         /* black */
     --drag-r:var(--crak);   /* dragons match their suit */
     --drag-g:var(--bam);
-    --soap:var(--dot);
+    --soap:#23272e;
     --flower:#b25c95;
     --joker:#a9781f;
 
@@ -45,7 +45,7 @@
     --t-wind:#24272e;
     --t-dragr:var(--t-crak);
     --t-dragg:var(--t-bam);
-    --t-soap:var(--t-dot);
+    --t-soap:#23261f;
     --t-flower:#b25c95;
     --t-joker:#a9781f;
     --t-blank:#6b6a5f;
@@ -87,7 +87,7 @@
       --wind:#c4c9d3;        /* black → light grey on dark */
       --drag-r:var(--crak);
       --drag-g:var(--bam);
-      --soap:var(--dot);
+      --soap:#e8e8ee;
       --flower:#e694c6;
       --joker:#e2b563;
       --pp-green:#74c377;
@@ -119,7 +119,7 @@
     --wind:#c4c9d3;
     --drag-r:var(--crak);
     --drag-g:var(--bam);
-    --soap:var(--dot);
+    --soap:#e8e8ee;
     --flower:#e694c6;
     --joker:#e2b563;
     --pp-green:#74c377;
@@ -396,6 +396,7 @@
   .pp-y{color:var(--ink);font-weight:700}
   .pp-z{color:var(--pp-red);font-weight:600}
   .pp-flower{color:var(--ink);font-weight:700}
+  .pp-zero{color:var(--ink);font-weight:700}
   .pp-dot{color:var(--dot);font-weight:600}
   .pp-bam{color:var(--bam);font-weight:600}
   .pp-crak{color:var(--crak);font-weight:600}
@@ -702,7 +703,9 @@ function colorName(h){
   if(toks.length !== parsed.blocks.length) return esc(label);
   return toks.map((t,i)=> {
     const cls = blockInk(parsed.blocks[i]);
-    return cls ? `<span class="${cls}">${esc(t)}</span>` : esc(t);
+    // any 0 (the Soap) shows black, whatever colour the rest of the group is
+    const inner = esc(t).replace(/0/g, '<span class="pp-zero">0</span>');
+    return cls ? `<span class="${cls}">${inner}</span>` : inner;
   }).join(' ') + esc(tail);
 }
 
