@@ -533,6 +533,21 @@
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lz-string/1.5.0/lz-string.min.js"></script>
+<script data-goatcounter="https://tilepalapp.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+<script>
+/* visit counter: opens from the Home Screen icon are tagged separately from Safari visits */
+(function(){
+  var standalone = (window.navigator.standalone === true) ||
+    (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
+  if(!standalone) return;
+  var tries = 0;
+  (function send(){
+    if(window.goatcounter && window.goatcounter.count){
+      try{ window.goatcounter.count({path:'home-screen-open', title:'Home Screen app open', event:true}); }catch(e){}
+    } else if(tries++ < 20){ setTimeout(send, 500); }
+  })();
+})();
+</script>
 <script>
 /* ---------------------------------------------------------------
    TilePal — American Mah Jongg 2026 helper

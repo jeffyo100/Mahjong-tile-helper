@@ -117,6 +117,7 @@
 </style>
 </head>
 <body>
+<script data-goatcounter="https://tilepalapp.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
 
 <div class="page">
   <header>
@@ -239,6 +240,19 @@
           setTimeout(function(){ btn.textContent = 'Copy link'; }, 1800);
         }, fallback);
       } else { fallback(); }
+    });
+  })();
+
+  // count taps on "Request the line code"
+  (function(){
+    var r = document.getElementById('reqBtn');
+    if(!r) return;
+    r.addEventListener('click', function(){
+      try{
+        if(window.goatcounter && window.goatcounter.count){
+          window.goatcounter.count({path:'request-line-code', title:'Request the line code tapped', event:true});
+        }
+      }catch(e){}
     });
   })();
 </script>
