@@ -629,6 +629,31 @@ function unpackCard(payload){
   if(typeof LZString !== 'undefined'){ const r = LZString.decompressFromEncodedURIComponent(payload); if(r) return r; }
   return decodeURIComponent(payload);
 }
+/* compact card format for share links: short rows instead of keyed objects,
+   defaults (25 points, any numbers, no flags) left out */
+const LINK_CATS = ["2026","2468","Any Like Numbers","Quints","Consecutive Run","13 5 7 9","Winds & Dragons","369","Singles & Pairs","Other"];
+const LINK_PAR = ["any","odd","even","369"];
+function compactCard(){
+  return card.map(h=>{
+    const ci = LINK_CATS.indexOf(h.cat);
+    const pts = +h.points || 25;
+    const flags = Math.max(0, LINK_PAR.indexOf(h.parity || 'any')) + (h.nojoker ? 4 : 0) + (h.concealed ? 8 : 0);
+    const row = [ci >= 0 ? ci : h.cat, h.label || '', h.pattern || ''];
+    if(pts !== 25 || flags) row.push(pts, flags);
+    return row;
+  });
+}
+function expandCompact(rows){
+  return rows.map(r=>{
+    const pts = r.length > 3 ? r[3] : 25;
+    const fl = r.length > 4 ? r[4] : 0;
+    return {
+      cat: typeof r[0] === 'number' ? (LINK_CATS[r[0]] || 'Other') : r[0],
+      label: r[1], pattern: r[2], points: pts,
+      parity: LINK_PAR[fl & 3] || 'any', nojoker: !!(fl & 4), concealed: !!(fl & 8),
+    };
+  });
+}
 function cardFromArray(arr){
   return arr.map(h=>({
     id: uid(),
@@ -1335,7 +1360,7 @@ document.addEventListener('click', async e=>{
     // one tap for the receiver: the link carries every hand; opening it offers "Import"
     let url;
     try{
-      url = location.origin + location.pathname + '#card=' + packCard(JSON.stringify(card.map(stripHand)));
+      url = location.origin + location.pathname + '#card=' + packCard(JSON.stringify(compactCard()));
     }catch(e){ toast('Could not build the link'); return; }
     let ok = false;
     try{ await navigator.clipboard.writeText(url); ok = true; }catch(e){}
@@ -1448,7 +1473,11 @@ applyTheme();
   const h = location.hash || '';
   if(h.startsWith('#card=')){
     let arr = null;
-    try{ arr = JSON.parse(unpackCard(h.slice(6))); }catch(e){ arr = null; }
+    try{
+      arr = JSON.parse(unpackCard(h.slice(6)));
+      // short-row links decode to full hands; older keyed links pass straight through
+      if(Array.isArray(arr) && arr.length && Array.isArray(arr[0])) arr = expandCompact(arr);
+    }catch(e){ arr = null; }
     // don't re-prompt on refresh
     try{ history.replaceState(null, '', location.pathname + location.search); }catch(e){ location.hash = ''; }
     if(Array.isArray(arr) && arr.length){
