@@ -1184,9 +1184,10 @@ function viewCard(){
 
   <div class="io">
     <h2 class="section">Backup &amp; share</h2>
-    <p class="fine"><b>Copy card link</b> makes a link with your whole card baked in — send it to someone and they tap it to import. Or keep the <b>text</b> below somewhere safe as a backup, and paste one back in to restore.</p>
+    <p class="fine"><b>Copy card link</b> is the easy way to share: text the link, and your friend taps it and chooses <b>Import</b>. <b>Copy cards</b> copies everything in the box below as text, for backups. To restore from text, tap <b>Clear field</b>, paste it in, and tap <b>Load cards</b>.</p>
     <div class="actbar">
-      <button class="btn tiny" type="button" data-act="card-link">Copy card link</button>
+      <button class="btn tiny" type="button" data-act="io-link">Copy card link</button>
+      <button class="btn tiny" type="button" data-act="card-link">Copy cards</button>
       <button class="btn tiny ghost" type="button" data-act="io-clear">Clear field</button>
     </div>
     <textarea id="ioBox" spellcheck="false">${esc(JSON.stringify(card.map(stripHand), null, 1))}</textarea>
@@ -1330,13 +1331,8 @@ document.addEventListener('click', async e=>{
     saveAll(); render(); toast('Card loaded');
     return;
   }
-  if(act==='io-clear'){
-    const box = document.getElementById('ioBox');
-    if(box){ box.value = ''; box.focus(); }
-    toast('Field cleared — your hands are untouched');
-    return;
-  }
-  if(act==='card-link'){
+  if(act==='io-link'){
+    // one tap for the receiver: the link carries every hand; opening it offers "Import"
     let url;
     try{
       url = location.origin + location.pathname + '#card=' + packCard(JSON.stringify(card.map(stripHand)));
@@ -1345,9 +1341,34 @@ document.addEventListener('click', async e=>{
     try{ await navigator.clipboard.writeText(url); ok = true; }catch(e){}
     if(!ok){
       const box = document.getElementById('ioBox');
-      if(box){ box.value = url; box.focus(); box.select(); try{ ok = document.execCommand('copy'); }catch(e){} }
+      if(box){
+        box.value = url; box.focus(); box.select();
+        try{ box.setSelectionRange(0, box.value.length); }catch(e){}
+        try{ ok = document.execCommand('copy'); }catch(e){}
+      }
     }
-    toast(ok ? 'Card link copied — send it to share' : 'Link is in the box below — copy it');
+    toast(ok ? 'Link copied — text it to a friend' : 'Link is in the box — press Copy');
+    return;
+  }
+  if(act==='io-clear'){
+    const box = document.getElementById('ioBox');
+    if(box){ box.value = ''; box.focus(); }
+    toast('Field cleared — your hands are untouched');
+    return;
+  }
+  if(act==='card-link'){
+    // copies the text in the field below — refreshed first so it's always your current cards
+    const box = document.getElementById('ioBox');
+    if(!box){ toast('Open Settings to copy your cards'); return; }
+    box.value = JSON.stringify(card.map(stripHand), null, 1);
+    box.focus(); box.select();
+    try{ box.setSelectionRange(0, box.value.length); }catch(e){}
+    let ok = false;
+    try{ ok = document.execCommand('copy'); }catch(e){}
+    if(!ok && navigator.clipboard){
+      try{ await navigator.clipboard.writeText(box.value); ok = true; }catch(e){}
+    }
+    toast(ok ? 'Cards copied — paste them anywhere' : 'Text is selected — press Copy');
     return;
   }
 });
