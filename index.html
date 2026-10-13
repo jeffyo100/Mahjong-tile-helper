@@ -1209,7 +1209,7 @@ function viewCard(){
 
   <div class="io">
     <h2 class="section">Backup &amp; share</h2>
-    <p class="fine"><b>Copy card link</b> is the easy way to share: text the link, and your friend taps it and chooses <b>Import</b>. <b>Copy cards</b> copies everything in the box below as text, for backups. To restore from text, tap <b>Clear field</b>, paste it in, and tap <b>Load cards</b>.</p>
+    <p class="fine"><b>Copy card link</b> is the easy way to share: text the link to a friend. To load a link into this app, tap <b>Clear field</b>, paste the link in, and tap <b>Load cards</b>. <b>Copy cards</b> copies everything in the box below as text, for backups, and it loads the same way.</p>
     <div class="actbar">
       <button class="btn tiny" type="button" data-act="io-link">Copy card link</button>
       <button class="btn tiny" type="button" data-act="card-link">Copy cards</button>
@@ -1348,9 +1348,13 @@ document.addEventListener('click', async e=>{
     const box = document.getElementById('ioBox');
     let arr;
     try{
-      arr = JSON.parse(box.value);
+      // accepts either a pasted card link or the card text
+      const raw = box.value.trim();
+      const at = raw.indexOf('#card=');
+      arr = JSON.parse(at >= 0 ? unpackCard(raw.slice(at + 6).trim()) : raw);
+      if(Array.isArray(arr) && arr.length && Array.isArray(arr[0])) arr = expandCompact(arr);
       if(!Array.isArray(arr)) throw 0;
-    }catch(err){ toast('That text is not valid card JSON'); return; }
+    }catch(err){ toast('That is not a card link or card text'); return; }
     if(!await askConfirm('Replace your card with '+arr.length+' hand(s) from the text?', 'Load')) return;
     card = cardFromArray(arr);
     saveAll(); render(); toast('Card loaded');
