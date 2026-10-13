@@ -1184,10 +1184,11 @@ function viewCard(){
     <p class="fine"><b>Copy card link</b> makes a link with your whole card baked in — send it to someone and they tap it to import. Or keep the <b>text</b> below somewhere safe as a backup, and paste one back in to restore.</p>
     <div class="actbar">
       <button class="btn tiny" type="button" data-act="card-link">Copy card link</button>
+      <button class="btn tiny ghost" type="button" data-act="io-clear">Clear field</button>
     </div>
     <textarea id="ioBox" spellcheck="false">${esc(JSON.stringify(card.map(stripHand), null, 1))}</textarea>
     <div class="actbar">
-      <button class="btn tiny ghost" type="button" data-act="io-load">Load from text</button>
+      <button class="btn tiny ghost" type="button" data-act="io-load">Load cards</button>
     </div>
   </div>
   `;
@@ -1324,6 +1325,12 @@ document.addEventListener('click', async e=>{
     if(!await askConfirm('Replace your card with '+arr.length+' hand(s) from the text?', 'Load')) return;
     card = cardFromArray(arr);
     saveAll(); render(); toast('Card loaded');
+    return;
+  }
+  if(act==='io-clear'){
+    const box = document.getElementById('ioBox');
+    if(box){ box.value = ''; box.focus(); }
+    toast('Field cleared — your hands are untouched');
     return;
   }
   if(act==='card-link'){
