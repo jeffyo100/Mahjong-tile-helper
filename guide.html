@@ -90,6 +90,15 @@
   }
   .demo svg{flex:none}
 
+  .request{background:var(--tint-blue);border-radius:20px;padding:20px;display:grid;gap:12px;min-width:0}
+  .request h2{font-family:var(--display);font-weight:600;font-size:22px;margin:0}
+  .request p{margin:0}
+  .request .small{font-size:15px;color:var(--soft)}
+  .reqbtn{
+    justify-self:start;font-family:var(--display);font-weight:600;font-size:19px;text-decoration:none;
+    background:var(--blue);color:var(--blue-ink);border-radius:14px;padding:14px 22px;
+  }
+  .reqbtn:focus-visible{outline:3px solid var(--pink);outline-offset:2px}
   .after{background:var(--tint-pink);border-radius:20px;padding:20px;display:grid;gap:10px;min-width:0}
   .after h2{font-family:var(--display);font-weight:600;font-size:22px;margin:0}
   .after ol{margin:0;padding-left:22px;display:grid;gap:6px}
@@ -180,6 +189,13 @@
       </div>
     </li>
   </ol>
+
+  <section class="request" aria-label="Request the line code">
+    <h2>Want the line code?</h2>
+    <p>The line code is the list of hands TilePal checks your rack against. Tap the button, send the email that opens, and it will be sent back to you.</p>
+    <a class="reqbtn" id="reqBtn" href="mailto:tilepalapp@gmail.com?subject=TilePal%20line%20code%20request&amp;body=Hi%2C%20please%20send%20me%20the%20TilePal%20line%20code.%20Thank%20you!">Request the line code</a>
+    <p class="small">Button not opening your email? Write to <b>tilepalapp@gmail.com</b> and ask for the TilePal line code.</p>
+  </section>
 
   <section class="after">
     <h2>Got a card from a friend?</h2>
